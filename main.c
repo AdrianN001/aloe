@@ -16,8 +16,9 @@ int main(int argc, char** argv){
 
     file_t main_file = open_file(path);
     WINDOW* file_editor_window = start_file_editor_window(base_window);
+    WINDOW* termninal_window = start_terminal_window(base_window);
     
-    update_file_editor_window(file_editor_window, &main_file, NULL);
+    update_file_editor_window(file_editor_window, &main_file, (int)NULL);
     for(;;){
         int input = getch();
         if (input == ERR){

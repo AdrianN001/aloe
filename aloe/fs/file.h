@@ -19,9 +19,12 @@ typedef struct{
 
 file_t open_file(char* path);
 
-int write_to_file(file_t* file);
+int write_to_file(file_t* file, char character);
 int delete_from_file(file_t* file);
 int save_file(file_t* file);
+
+
+char* get_filename_by_path(char* path);
 
 
 int close_file(file_t* file);

@@ -3,5 +3,8 @@
 
 #include "aloe/graphic/base.h"
 #include "aloe/graphic/file_editor.h"
+#include "aloe/graphic/terminal.h"
+
+
 
 #endif

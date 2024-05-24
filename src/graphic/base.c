@@ -10,6 +10,6 @@ WINDOW* setup_base_window(void){
     curs_set(0); /* Hide the cursor */
     cbreak();
     noecho();
-    keypad(stdscr, TRUE);
+    keypad(main_window, TRUE);
     return main_window;
 }
