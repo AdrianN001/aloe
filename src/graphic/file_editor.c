@@ -38,7 +38,7 @@ void update_file_editor_window(WINDOW* window, file_t* file, int character){
     box(window, 0, 0);
 
     const int row_rendering_offset = 3;
-    const int collumn_rendering_offset = 2;
+    const int collumn_rendering_offset = 5;
 
     
     switch(character){
@@ -81,8 +81,8 @@ void update_file_editor_window(WINDOW* window, file_t* file, int character){
                 }
                 break;
             }
-            delete_from_file(file); /*Deletes one character*/
             file->collumn_pointer = (file->collumn_pointer == 0) ? 0 : file->collumn_pointer -1;
+            delete_from_file(file); /*Deletes one character*/
             break;
         }
         case CTRL('a'):{
@@ -107,13 +107,20 @@ void update_file_editor_window(WINDOW* window, file_t* file, int character){
             break;
         }
     }   
+
+    bool cursor_added = false;
     for (int row = 0; row < buffer->pointer; row++){
         buffer_t* current_row = &(buffer->data[row]);
 
-        mvwprintw(window, row+row_rendering_offset, 0, "%d", row+1);
+        mvwprintw(window, row+row_rendering_offset, 0, "|%02d|", row+1);
 
         for (int collumn = 0; collumn < current_row->pointer; collumn++){
             char character = current_row->data[collumn]; 
+            if (row == file->row_pointer && collumn == file->collumn_pointer){
+                cursor_added = true;
+                mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character| A_REVERSE);
+                continue;
+            }
             mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character);
             wrefresh(window);
         }        
@@ -122,9 +129,9 @@ void update_file_editor_window(WINDOW* window, file_t* file, int character){
     /* Cursor position */
     mvwprintw(window, 52, 30, "|Ln %d, Col %d|", file->row_pointer+1, file->collumn_pointer+1);
 
-    /*Cursor*/
-    mvwaddch(window, file->row_pointer+row_rendering_offset, file->collumn_pointer+collumn_rendering_offset, '_'| A_REVERSE | A_BLINK);
-
+    // /* Cursor */
+    if (!cursor_added)
+        mvwaddch(window, file->row_pointer+row_rendering_offset, file->collumn_pointer+collumn_rendering_offset, '_' |A_REVERSE);
   
 
     wrefresh(window);

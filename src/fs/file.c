@@ -4,18 +4,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 char* get_filename_by_path(char* path){
     int last_slash_character = 0;
+    bool slash_found = false;
     char* path_cpy = path;
     int offset = 0;
     for (;(*path_cpy != 0); path_cpy++){
         if (*path_cpy == '/'){
             last_slash_character = offset;
+            slash_found = true;
         }
         offset++;
     }
-    return &(path[last_slash_character+1]);
+    return slash_found ? &(path[last_slash_character+1]) : &(path[last_slash_character]) ;
 }
 
 
@@ -24,49 +27,34 @@ file_t open_file(char* path){
     const int max_lines = 100;
 
     FILE *read_fp = fopen(path, "r");
-    assert(read_fp != NULL);
-    
-    /* Go to the end of the file. */
-    assert(fseek(read_fp, 0L, SEEK_END) == 0);
-    /* Get the size of the file. */
-    long bufsize = ftell(read_fp);    
+   
+    char* line = NULL;
+    int chars_read;
+    int len = 0;
+    bool any_line_read = false;
 
-    char* content = (char*)malloc(sizeof(char) * (bufsize + 1));
-    
-    /* Go back to the start of the file. */
-    assert(fseek(read_fp, 0L, SEEK_SET) == 0)
-
-    /* Read the entire file into memory. */
-    size_t newLen = fread(content, sizeof(char), bufsize, read_fp);
-    content[bufsize] = '\0';
-
-    //buffer_t new_buffer = buffer_init_by_array(content, bufsize+additional_storage_in_buffer, additional_storage_in_buffer);
     complex_buffer_t lines_buffer = complex_buffer_init(max_lines);
     const char delimiter[] = "\n";
-
-    if (bufsize > 0){
-        char* line = strtok(content, delimiter);
-
-        while( line != NULL ){
-            complex_buffer_append(&lines_buffer, line, strlen(line));
-            line = strtok(NULL, delimiter);
+    
+    while((chars_read = getline(&line, &len, read_fp)) != -1){
+        if (len == 0){
+            char empty_buffer[1];
+            complex_buffer_append(&lines_buffer, empty_buffer, 0);
+        }else{
+            complex_buffer_append(&lines_buffer, line, chars_read);
         }
-    }else{
+        any_line_read = true;
+    }
+    if (!any_line_read){
         char empty_buffer[1];
         complex_buffer_append(&lines_buffer, empty_buffer, 0);
     }
-   
     
-    free(content);
-    fclose(read_fp);
-
-    FILE* fp = fopen(path, "w");
-
     return (file_t){
         .buffer = lines_buffer,
         .dirty = false,
         .file_name = get_filename_by_path(path),
-        .fp = fp,
+        .fp = read_fp,
         .row_pointer = 0,
         .row_offset = 0,
         .collumn_pointer = 0
@@ -106,9 +94,10 @@ int save_file(file_t* file){
         }else{
             fprintf(file->fp, "%s\n", current_line->data);
         }
+        
     }
     fflush(file->fp);
-
+    file->fp = freopen(NULL, "r", file->fp);
     return 0;
 }
 

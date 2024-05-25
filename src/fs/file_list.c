@@ -41,6 +41,6 @@ void file_list_force_close_file(file_list_t* file_list){
 }
 
 void file_list_save_and_close_file(file_list_t* file_list){
-    save_file(&(file_list->active_file));
+    save_file(file_list->active_file);
     file_list_force_close_file(file_list);
 }

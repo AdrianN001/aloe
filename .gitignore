@@ -2,3 +2,7 @@
 .vscode
 
 a.out
+
+new_core
+
+*.py

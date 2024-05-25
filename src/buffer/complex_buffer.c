@@ -1,9 +1,11 @@
 #include <string.h>
 #include <stdlib.h>
+#include <malloc.h>
 
 #include "aloe/buffer.h"
+#include "aloe/assert.h"
 
-#define ADDITIONAL_STORAGE_ALLOCATED 50
+#define ADDITIONAL_STORAGE_ALLOCATED 30
 
 complex_buffer_t complex_buffer_init(size_t size_of_buffer){
     return (complex_buffer_t){
@@ -15,16 +17,27 @@ complex_buffer_t complex_buffer_init(size_t size_of_buffer){
 
 void complex_buffer_append(complex_buffer_t* buffer, char* input, size_t size_of_input){
     
-    char* input_copy = malloc(sizeof(char) * size_of_input+ADDITIONAL_STORAGE_ALLOCATED);
-    memcpy(input_copy, input, size_of_input);
-    input_copy[size_of_input] = '\0';
+    if (buffer->pointer == buffer->max_size){
+        complex_buffer_resize(buffer, buffer->max_size*2);
+        buffer->max_size *= 2;
+    }
+    size_t size_of_copied_buffer = (size_of_input+ADDITIONAL_STORAGE_ALLOCATED);
+    char* input_copy = malloc(sizeof(char) * size_of_copied_buffer);
+    assert(input_copy != NULL);
 
-    
-    buffer->data[buffer->pointer++] = (buffer_t){
-        .data=input_copy,
-        .pointer = size_of_input,
-        .max_size = size_of_input + ADDITIONAL_STORAGE_ALLOCATED
-    };
+    strcpy(input_copy, input);
+
+  
+    if (input_copy[size_of_input-1] == (char)10){ // enter
+        input_copy[size_of_input-1] = '\0';
+
+        buffer->data[buffer->pointer++] = buffer_init_by_array(input_copy, size_of_copied_buffer-1, ADDITIONAL_STORAGE_ALLOCATED);
+    }
+    else{
+        input_copy[size_of_input] = '\0';
+
+        buffer->data[buffer->pointer++] = buffer_init_by_array(input_copy, size_of_copied_buffer, ADDITIONAL_STORAGE_ALLOCATED);
+    }
 }
 
 void complex_buffer_insert_at(complex_buffer_t* buffer, int pointer){
@@ -47,6 +60,10 @@ void complex_buffer_insert_at(complex_buffer_t* buffer, int pointer){
         .max_size=ADDITIONAL_STORAGE_ALLOCATED,
         .pointer=0
     };
+    if (buffer->pointer == buffer->max_size){
+        complex_buffer_resize(buffer, buffer->max_size*2);
+        buffer->max_size *= 2;
+    }
 
 }
 
@@ -66,7 +83,14 @@ void complex_buffer_remove_from(complex_buffer_t* buffer, int pointer){
     buffer->pointer--;
 }
 
-
+void complex_buffer_resize(complex_buffer_t* buffer, size_t new_size){
+    if (new_size < buffer->max_size){
+        return;
+    }
+    buffer->data = realloc(buffer->data, new_size*sizeof(buffer_t));
+    printf("%d fasz\n", malloc_usable_size(buffer->data));
+    assert_with_log_s(buffer->data != NULL, "Reallocation failed");
+}
 
 void complex_buffer_free(complex_buffer_t* buffer){
     for (int i = 0; i < buffer->pointer; i++){

@@ -16,6 +16,7 @@ complex_buffer_t complex_buffer_init(size_t size_of_buffer);
 void complex_buffer_append(complex_buffer_t* buffer, char* input, size_t size_of_input);
 void complex_buffer_insert_at(complex_buffer_t* buffer, int pointer);
 void complex_buffer_remove_from(complex_buffer_t* buffer, int pointer);
+void complex_buffer_resize(complex_buffer_t* buffer, size_t new_size);
 
 
 void complex_buffer_free(complex_buffer_t* buffer);

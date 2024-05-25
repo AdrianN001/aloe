@@ -17,7 +17,7 @@ buffer_t buffer_init_by_array(char* input, size_t size_of_inputbuffer, const int
 }
 
 buffer_t buffer_init(int size, int max_size){
-    const int additional_storage_space = 50;
+    const int additional_storage_space = 30;
     char* data = malloc(sizeof(char) * additional_storage_space);
     data[additional_storage_space] = '\0';
     return (buffer_t){
@@ -34,8 +34,9 @@ void buffer_resize(buffer_t* buffer, size_t new_buffer_size){
     if (new_buffer_size < buffer->max_size){
         return;
     }
-    buffer->data = realloc(buffer->data, new_buffer_size);
+    buffer->data = realloc(buffer->data, new_buffer_size * sizeof(char));
     assert_with_log_s(buffer->data != NULL, "Reallocation failed");
+    // buffer->max_size = new_buffer_size;
 }
 
 

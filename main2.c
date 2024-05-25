@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
-#include <unistd.h>
-
 
 #include "aloe/fs.h"
 #include "aloe/graphic.h"
@@ -16,30 +14,25 @@ int main(int argc, char** argv){
     WINDOW* base_window = setup_base_window();
     file_t main_file = open_file(path);
 
-    // for (int i = 0; i < main_file.buffer.pointer; i++){
-    //     printf("%s: %d\n", main_file.buffer.data[i].data, main_file.buffer.data[i].pointer);
-    // }
-
-
-    start_file_info_window(base_window, &main_file);
+    
+    start_terminal_window(base_window);
+    start_file_info_window(base_window,&main_file);
     WINDOW* file_editor_window = start_file_editor_window(base_window);
     WINDOW* termninal_window = start_terminal_window(base_window);
-    WINDOW* time_window = start_time_window(base_window);
     
     update_file_editor_window(file_editor_window, &main_file, (int)NULL);
     for(;;){
-        int input = wgetch(file_editor_window);
+        int input = getch();
         if (input == ERR){
-            update_time_window(time_window);
-            goto SLEEP;
+            continue;
         }
         update_file_editor_window(file_editor_window, &main_file, (char)input);
-SLEEP:
-        usleep(1 * 10e3);
     }
 
 
     close_file(&main_file); 
     
     return 0;
+
 }
+// Na, ki a vilag legjobb programozoja
