@@ -16,11 +16,6 @@ int main(int argc, char** argv){
     WINDOW* base_window = setup_base_window();
     file_t main_file = open_file(path);
 
-    // for (int i = 0; i < main_file.buffer.pointer; i++){
-    //     printf("%s: %d\n", main_file.buffer.data[i].data, main_file.buffer.data[i].pointer);
-    // }
-
-
     start_file_info_window(base_window, &main_file);
     WINDOW* file_editor_window = start_file_editor_window(base_window);
     WINDOW* termninal_window = start_terminal_window(base_window);

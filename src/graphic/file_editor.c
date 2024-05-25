@@ -37,8 +37,9 @@ void update_file_editor_window(WINDOW* window, file_t* file, int character){
     werase(window);
     box(window, 0, 0);
 
-    const int row_rendering_offset = 3;
+    const int row_rendering_offset = 2;
     const int collumn_rendering_offset = 5;
+    const int max_rendered_line = 50;
 
     
     switch(character){
@@ -46,13 +47,27 @@ void update_file_editor_window(WINDOW* window, file_t* file, int character){
             break;
         }
         case KEY_ARROW_UP :{
-            file->row_pointer = (file->row_pointer == 0) ? 0 : file->row_pointer -1 ;
+            if(file->row_pointer != 0) {
+                file->row_pointer-- ;
+                if (file->row_pointer >= max_rendered_line){
+                    file->row_offset = file->row_pointer - max_rendered_line + 5;
+                }else if(file->row_pointer <= max_rendered_line){
+                    file->row_offset = 0;
+                }
+            } 
             file->collumn_pointer = (file->collumn_pointer > file->buffer.data[file->row_pointer].pointer) ? file->buffer.data[file->row_pointer].pointer : file->collumn_pointer ;  
             break;
         }
         case KEY_ARROW_DOWN:{
-            file->row_pointer = (file->buffer.pointer-1 == file->row_pointer) ? file->row_pointer:file->row_pointer + 1;
+            if (file->buffer.pointer-1 != file->row_pointer){
+                file->row_pointer++;
+                if (file->row_pointer >= max_rendered_line){
+                    file->row_offset = file->row_pointer - max_rendered_line + 5;
+                }
+            }
             file->collumn_pointer = (file->collumn_pointer > file->buffer.data[file->row_pointer].pointer) ? file->buffer.data[file->row_pointer].pointer : file->collumn_pointer ;  
+            
+            
             break;
         }
         case KEY_ARROW_LEFT:{
@@ -77,7 +92,6 @@ void update_file_editor_window(WINDOW* window, file_t* file, int character){
                     complex_buffer_remove_from(&file->buffer, file->row_pointer); /* Removes the line and merges with the prev one*/
                     file->row_pointer--; /* Jump up one line */
                     file->collumn_pointer = file->buffer.data[file->row_pointer].pointer; /* Jump to the end of the line */
-
                 }
                 break;
             }
@@ -109,16 +123,18 @@ void update_file_editor_window(WINDOW* window, file_t* file, int character){
     }   
 
     bool cursor_added = false;
-    for (int row = 0; row < buffer->pointer; row++){
-        buffer_t* current_row = &(buffer->data[row]);
+    for (int row = 0; row < buffer->pointer && row < max_rendered_line; row++){
+        buffer_t* current_row = &(buffer->data[row+file->row_offset]);
 
-        mvwprintw(window, row+row_rendering_offset, 0, "|%02d|", row+1);
+        mvwprintw(window, row+row_rendering_offset, 0, "|%02d|", row+file->row_offset+1);
 
         for (int collumn = 0; collumn < current_row->pointer; collumn++){
             char character = current_row->data[collumn]; 
-            if (row == file->row_pointer && collumn == file->collumn_pointer){
+            if (row == file->row_pointer-file->row_offset && collumn == file->collumn_pointer){
                 cursor_added = true;
-                mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character| A_REVERSE);
+
+                mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character | A_REVERSE);
+                
                 continue;
             }
             mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character);
