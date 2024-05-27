@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <malloc.h>
-
+#include <stdbool.h>
 #include "aloe/buffer.h"
 #include "aloe/assert.h"
 
@@ -9,39 +9,48 @@
 
 complex_buffer_t complex_buffer_init(size_t size_of_buffer){
     return (complex_buffer_t){
-        .data = malloc(sizeof(buffer_t) * size_of_buffer),
+        .data = calloc(sizeof(buffer_t), size_of_buffer),
         .max_size = size_of_buffer,
         .pointer = 0
     };
 }
 
-void complex_buffer_append(complex_buffer_t* buffer, char* input, size_t size_of_input){
-    
-    if (buffer->pointer == buffer->max_size){
-        complex_buffer_resize(buffer, buffer->max_size*2);
+void complex_buffer_append_blank(complex_buffer_t* buffer){
+    if (buffer->pointer+1 == buffer->max_size){
         buffer->max_size *= 2;
+        complex_buffer_resize(buffer, buffer->max_size);
     }
-    size_t size_of_copied_buffer = (size_of_input+ADDITIONAL_STORAGE_ALLOCATED);
-    char* input_copy = malloc(sizeof(char) * size_of_copied_buffer);
+    char* blank_line = calloc(sizeof(char), ADDITIONAL_STORAGE_ALLOCATED);
+
+    buffer->data[buffer->pointer++] = buffer_init_by_array(blank_line, 0, ADDITIONAL_STORAGE_ALLOCATED);
+
+}
+
+void complex_buffer_append(complex_buffer_t* buffer, char* input, size_t size_of_input){
+    if (buffer->pointer+1 == buffer->max_size){
+        buffer->max_size *= 2;
+        complex_buffer_resize(buffer, buffer->max_size);
+    }
+    size_t size_of_copied_buffer = (size_of_input+ADDITIONAL_STORAGE_ALLOCATED+1);
+    char* input_copy = calloc(sizeof(char), size_of_copied_buffer);
     assert(input_copy != NULL);
 
-    strcpy(input_copy, input);
+    bool endl_removed = false;
+    for (int i = 0; i < size_of_input; i++){
+        if ((int)input[i] == 10){
+            input_copy[i] = '\0';
+            endl_removed = true;
+            continue;
+        }
+        input_copy[i] = input[i];
+    }
 
+    buffer->data[buffer->pointer++] = buffer_init_by_array(input_copy, size_of_input - (int)endl_removed, ADDITIONAL_STORAGE_ALLOCATED);
   
-    if (input_copy[size_of_input-1] == (char)10){ // enter
-        input_copy[size_of_input-1] = '\0';
-
-        buffer->data[buffer->pointer++] = buffer_init_by_array(input_copy, size_of_copied_buffer-1, ADDITIONAL_STORAGE_ALLOCATED);
-    }
-    else{
-        input_copy[size_of_input] = '\0';
-
-        buffer->data[buffer->pointer++] = buffer_init_by_array(input_copy, size_of_copied_buffer, ADDITIONAL_STORAGE_ALLOCATED);
-    }
 }
 
 void complex_buffer_insert_at(complex_buffer_t* buffer, int pointer){
-    char* data_of_new_line = malloc(sizeof(char) * ADDITIONAL_STORAGE_ALLOCATED);
+    char* data_of_new_line = calloc(sizeof(char), ADDITIONAL_STORAGE_ALLOCATED);
     if (pointer == buffer->pointer){
         buffer->data[buffer->pointer++] = (buffer_t){
             .data=data_of_new_line,
@@ -84,11 +93,9 @@ void complex_buffer_remove_from(complex_buffer_t* buffer, int pointer){
 }
 
 void complex_buffer_resize(complex_buffer_t* buffer, size_t new_size){
-    if (new_size < buffer->max_size){
-        return;
-    }
-    buffer->data = realloc(buffer->data, new_size*sizeof(buffer_t));
-    printf("%d fasz\n", malloc_usable_size(buffer->data));
+
+    buffer->data  = (buffer_t*)realloc(buffer->data, new_size*sizeof(buffer_t));
+
     assert_with_log_s(buffer->data != NULL, "Reallocation failed");
 }
 

@@ -5,14 +5,14 @@
 #include "aloe/assert.h"
 
 
-file_list_t file_list_init(int max_files_n){
-    file_t* data = malloc(sizeof(file_t) * MAX_FILES_ALLOWED);
+file_list_t file_list_init(){
+    file_t* data = calloc(sizeof(file_t), MAX_FILES_ALLOWED);
     return (file_list_t){
         .active_file = NULL,
         .open_files = data,
+        .active_file_pointer = 0,
         .open_file_n = 0
     };
-
 }
 
 void file_list_free(file_list_t* file_list){
@@ -21,12 +21,29 @@ void file_list_free(file_list_t* file_list){
     file_list->open_file_n = 0;
 }
 
-void file_list_switch_to(file_list_t* file_list, int index){
-    if (index <= file_list->open_file_n){
-        return;
+file_t* file_list_append(file_list_t* file_list, char* path){
+    if( file_list->open_file_n >= MAX_FILES_ALLOWED){
+        return NULL;
     }
-    file_list->active_file = &(file_list->open_files[index]);
+    file_list->open_files[file_list->open_file_n] = open_file(path);
+    if (file_list->active_file == NULL ){
+        file_list->active_file = &file_list->open_files[file_list->open_file_n];
+    }
+    return &file_list->open_files[file_list->open_file_n++];
 }
+
+void file_list_increment_active_pointer(file_list_t* file_list){
+    file_list->active_file_pointer = (file_list->active_file_pointer + 1) % file_list->open_file_n;
+    file_list->active_file = &file_list->open_files[file_list->active_file_pointer];
+}
+
+void file_list_decrement_active_pointer(file_list_t* file_list){
+
+    file_list->active_file_pointer = (file_list->active_file_pointer == 0) ? file_list->open_file_n -1: file_list->active_file_pointer - 1;
+
+    file_list->active_file = &file_list->open_files[file_list->active_file_pointer];
+}
+
 
 
 int file_list_try_close_file(file_list_t* file_list){
@@ -37,7 +54,20 @@ int file_list_try_close_file(file_list_t* file_list){
 }
 
 void file_list_force_close_file(file_list_t* file_list){
-    assert_with_log_s(0, "Not yet implemented");
+    close_file(file_list->active_file);
+    if(file_list->active_file == &file_list->open_files[file_list->open_file_n-1]){
+        file_list->open_file_n--;
+        file_list->active_file_pointer--;
+        file_list->active_file = &file_list->open_files[file_list->active_file_pointer];
+    }
+    else{
+        for (file_t* i = file_list->active_file; i != &file_list->open_files[file_list->open_file_n-1] ;  ){
+            *i = *(++i);
+        }
+        file_list_increment_active_pointer(file_list);
+        file_list->open_file_n--;
+    }
+     
 }
 
 void file_list_save_and_close_file(file_list_t* file_list){

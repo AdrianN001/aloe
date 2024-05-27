@@ -7,18 +7,17 @@
 
 
 buffer_t buffer_init_by_array(char* input, size_t size_of_inputbuffer, const int additional_storage){
-
     return (buffer_t){
         .data=input,
-        .pointer=size_of_inputbuffer-additional_storage,
-        .max_size=size_of_inputbuffer
+        .pointer=size_of_inputbuffer,
+        .max_size=size_of_inputbuffer+additional_storage
     };
 
 }
 
 buffer_t buffer_init(int size, int max_size){
     const int additional_storage_space = 30;
-    char* data = malloc(sizeof(char) * additional_storage_space);
+    char* data = calloc(sizeof(char), additional_storage_space);
     data[additional_storage_space] = '\0';
     return (buffer_t){
         .data=data,

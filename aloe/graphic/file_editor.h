@@ -27,7 +27,7 @@ WINDOW* start_file_editor_window(WINDOW* base_window);
 int search_negative_row_offset(file_t* file);
 
 // Search for a new line downwards to move the view to
-void update_file_editor_window(WINDOW* window, file_t* file, int character);
+void update_file_editor_window(WINDOW* window, file_list_t* file_list, int character);
 
 void show_save_popup_window(int start_x, int start_y);
 

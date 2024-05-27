@@ -34,12 +34,10 @@ file_t open_file(char* path){
     bool any_line_read = false;
 
     complex_buffer_t lines_buffer = complex_buffer_init(max_lines);
-    const char delimiter[] = "\n";
     
-    while((chars_read = getline(&line, &len, read_fp)) != -1){
-        if (len == 0){
-            char empty_buffer[1];
-            complex_buffer_append(&lines_buffer, empty_buffer, 0);
+    while((chars_read = getdelim(&line, &len, '\n', read_fp)) != -1){
+        if (chars_read == 0){
+            complex_buffer_append_blank(&lines_buffer);
         }else{
             complex_buffer_append(&lines_buffer, line, chars_read);
         }
@@ -80,9 +78,10 @@ int delete_from_file(file_t* file){
 
 int save_file(file_t* file){
     file->fp = freopen(NULL, "w", file->fp);
+    assert(file->fp != NULL);
+
     complex_buffer_t* buffer = &file->buffer;
 
-    fseek(file->fp, 0L, SEEK_SET);
 
     for (int i = 0; i < buffer->pointer;i++){
         buffer_t* current_line = &buffer->data[i];
@@ -98,12 +97,14 @@ int save_file(file_t* file){
     }
     fflush(file->fp);
     file->fp = freopen(NULL, "r", file->fp);
+    assert(file->fp != NULL);
     return 0;
 }
 
 
 int close_file(file_t* file){
     complex_buffer_free(&(file->buffer));
-    return fclose(file->fp);
+    // fclose(file->fp);
+    return 0;
 }
 

@@ -1,7 +1,7 @@
-CC          := gcc
+CC          := clang-17
 CFLAGS      := 
 PROJECT_DIR := $(shell pwd)
-CFLAGS      += -I$(PROJECT_DIR)
+CFLAGS      += -I$(PROJECT_DIR) 
 
 LDLIBS      := -lncurses
 
