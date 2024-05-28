@@ -47,11 +47,13 @@ file_t open_file(char* path){
         char empty_buffer[1];
         complex_buffer_append(&lines_buffer, empty_buffer, 0);
     }
+    fseek(read_fp, 0L, SEEK_SET);
     
     return (file_t){
         .buffer = lines_buffer,
         .dirty = false,
         .file_name = get_filename_by_path(path),
+        .absolute_file_name = path,
         .fp = read_fp,
         .row_pointer = 0,
         .row_offset = 0,
@@ -104,7 +106,7 @@ int save_file(file_t* file){
 
 int close_file(file_t* file){
     complex_buffer_free(&(file->buffer));
-    // fclose(file->fp);
+    fclose(file->fp);
     return 0;
 }
 

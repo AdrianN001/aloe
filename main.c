@@ -2,14 +2,19 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include <unistd.h>
+#include <signal.h>
 
 
 #include "aloe/fs.h"
 #include "aloe/graphic.h"
 
+static volatile int keep_running = 1;
+
 bool handle_mode_state_change_in_base_mode(int input_character, int* current_state);
+void interruptHandler(int);
 
 int main(int argc, char** argv){
+
     if(argc == 1){
         return -1;
     }
@@ -18,6 +23,8 @@ int main(int argc, char** argv){
     if ((type_of_path = lookup_path(path)) == INVALID){
         return -1;
     }
+
+    signal(SIGINT, interruptHandler);
 
     dir_t workspace;
     file_list_t file_list = file_list_init();
@@ -28,7 +35,7 @@ int main(int argc, char** argv){
     }else if(type_of_path == VALID_FILE){
         main_file = file_list_append(&file_list, path);
     }
-    (void)file_list_append(&file_list, "src/fs/file_list.c");
+    (void)file_list_append(&file_list, "src/graphic/mode_window.c");
     (void)file_list_append(&file_list, "aloe/buffer.h");
     (void)file_list_append(&file_list, "aloe/graphic.h");
     (void)file_list_append(&file_list, "aloe/fs.h");
@@ -48,7 +55,7 @@ int main(int argc, char** argv){
     
     update_file_editor_window(file_editor_window, &file_list, (int)NULL);
 
-    for(;;){
+    for(;keep_running;){
         int input = wgetch(file_editor_window);
         
         /* If there is an input and the mode is "base_mode", than handle it  */
@@ -72,6 +79,13 @@ int main(int argc, char** argv){
                     update_file_info_window(file_info_window, file_list.active_file);
 
                     break;
+                }
+                case CTRL('a'):{
+                    save_file(file_list.active_file);
+                    file_list.active_file->dirty = false;
+                    show_saved_popup_window(LINES /2 , COLS /2);
+
+                    update_file_editor_window(file_editor_window,&file_list, (int)NULL);
                 }
             }
         }
@@ -99,7 +113,9 @@ int main(int argc, char** argv){
                 break;
             }
             case WORKSPACE_MODE:{
-                update_workspace_window(workspace_window, &workspace, (char)input );
+                update_workspace_window(workspace_window, &workspace, &file_list, (char)input );
+                update_file_editor_window(file_editor_window,&file_list, (int)NULL);
+                update_file_info_window(file_info_window, file_list.active_file);
                 break;
             }
         }
@@ -110,10 +126,18 @@ SLEEP:
         usleep(9 * 10e2);
     }
 
-    close_file(main_file); 
+    werase(base_window);
+    wrefresh(base_window);
+    delwin(base_window);
+    endwin();
+
+
+    file_list_close_all(&file_list);
+    file_list_free(&file_list);
     if(type_of_path == VALID_DIRECTORY){
         free_directory_object(&workspace);
     }
+    printf("Program exited successfully. Goodbye!\n");
     
     return 0;
 
@@ -134,4 +158,8 @@ bool handle_mode_state_change_in_base_mode(int input_character, int* current_sta
         return true;
     }
     return false;
+}
+
+void interruptHandler(int){
+    keep_running = 0;
 }

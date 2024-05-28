@@ -39,11 +39,15 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
 
     for (int i = 0; i < directory->n_subdir; i++){
         char* path_without_dir = get_filename_by_path(directory->subdirectories[i].dir_path);
-        mvwprintw(workspace_window, 5+i, 2, "%s", path_without_dir);
+        if ( i == directory->pointer){
+            mvwprintw(workspace_window, 5+i, 2, ">%s", path_without_dir);
+        }else{
+            mvwprintw(workspace_window, 5+i, 2, "%s", path_without_dir);
+        }
     }
 
     mvwprintw(workspace_window, 5+ directory->n_subdir +2, 2, "<-- Go to parent directory"); 
-    mvwprintw(workspace_window, 5+ directory->n_subdir +4, 2, "--> Open the directory"); 
+    mvwprintw(workspace_window, 5+ directory->n_subdir +4, 2, "--> Open the directory/file"); 
 
 
     /* Files */
@@ -51,9 +55,13 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
     const char* files_text = "------|Files|------";
     mvwprintw(workspace_window, height/2.5+ 5+ directory->n_subdir, width/2 - strlen(files_text)/2, files_text);
 
-    for (int i = directory->n_subdir+2; i < directory->n_subdir + directory->n_files+2; i++){
-        char* path_without_dir = get_filename_by_path(directory->files[i - directory->n_subdir-2]);
-        mvwprintw(workspace_window, height/2.5 +(4+i), 2, " %s", path_without_dir);
+    for (int i = directory->n_subdir; i < directory->n_subdir + directory->n_files; i++){
+        char* path_without_dir = get_filename_by_path(directory->files[i - directory->n_subdir]);
+         if ( i == directory->pointer){
+            mvwprintw(workspace_window, height/2.5 +(4+i+2), 2, ">%s", path_without_dir);
+        }else{
+            mvwprintw(workspace_window, height/2.5 +(4+i+2), 2, "%s", path_without_dir);
+        }
     }
 
 
@@ -62,7 +70,8 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
     return workspace_window;
 }
 
-void update_workspace_window(WINDOW* window, dir_t* directory, int character_pressed){
+void update_workspace_window(WINDOW* window,dir_t* directory, file_list_t* file_list,  int character_pressed){
+
     const int x_top = 190;
     const int y_top = 0;
     const int height = 40;
@@ -75,11 +84,11 @@ void update_workspace_window(WINDOW* window, dir_t* directory, int character_pre
 
     switch(character_pressed){
         case KEY_ARROW_DOWN:{
-            directory->pointer++;
+            directory->pointer = (directory->pointer + 1) % (directory->n_files + directory->n_subdir );
             break;
         }
         case KEY_ARROW_UP:{
-            directory->pointer--;
+            directory->pointer = (directory->pointer == 0) ? (directory->n_files + directory->n_subdir-1): directory->pointer -1;
             break;
         }
         case KEY_ARROW_LEFT:{
@@ -94,6 +103,33 @@ void update_workspace_window(WINDOW* window, dir_t* directory, int character_pre
             break;
         }
         case KEY_ARROW_RIGHT:{
+            if(directory->pointer < directory->n_subdir){
+                /* The pointer is at one of the subdirs */
+                char* abs_path = realpath(directory->subdirectories[directory->pointer].dir_path, NULL);
+                free_directory_object(directory);
+                *directory = create_directory_object(abs_path,3);
+
+                free(abs_path);
+
+            }else if (directory->pointer < (directory->n_subdir + directory->n_files)){
+                /* The pointer is at one of the files */
+                char* choosen_file = directory->files[directory->pointer -directory->n_subdir];
+
+                char* dir_fullpath = realpath(directory->dir_path, NULL);
+                size_t size_fullpath = strlen(dir_fullpath); 
+
+                char full_name[128] = {0}; 
+                strcpy(full_name, dir_fullpath);
+                free(dir_fullpath);
+                
+                full_name[size_fullpath] = '/';
+                strcpy(&full_name[size_fullpath+1], choosen_file);
+
+
+                file_list_append(file_list, full_name);
+                file_list->active_file_pointer = file_list->open_file_n-1;
+                file_list->active_file = &(file_list->open_files[file_list->active_file_pointer]);
+            }
             
             break;
         }
@@ -109,7 +145,11 @@ void update_workspace_window(WINDOW* window, dir_t* directory, int character_pre
 
     for (int i = 0; i < directory->n_subdir; i++){
         char* path_without_dir = get_filename_by_path(directory->subdirectories[i].dir_path);
-        mvwprintw(window, 5+i, 2, "%s", path_without_dir);
+        if ( i == directory->pointer){
+            mvwprintw(window, 5+i, 2, ">%s", path_without_dir);
+        }else{
+            mvwprintw(window, 5+i, 2, "%s", path_without_dir);
+        }
     }
 
     mvwprintw(window, 5+ directory->n_subdir +2, 2, "<-- Go to parent directory"); 
@@ -121,9 +161,13 @@ void update_workspace_window(WINDOW* window, dir_t* directory, int character_pre
     const char* files_text = "------|Files|------";
     mvwprintw(window, height/2.5+ 5+ directory->n_subdir, width/2 - strlen(files_text)/2, files_text);
 
-    for (int i = directory->n_subdir+2; i < directory->n_subdir + directory->n_files+2; i++){
-        char* path_without_dir = get_filename_by_path(directory->files[i - directory->n_subdir-2]);
-        mvwprintw(window, height/2.5 +(4+i), 2, " %s", path_without_dir);
+    for (int i = directory->n_subdir; i < directory->n_subdir + directory->n_files; i++){
+        char* path_without_dir = get_filename_by_path(directory->files[i - directory->n_subdir]);
+        if ( i == directory->pointer){
+            mvwprintw(window, height/2.5 +(4+i+2), 2, ">%s", path_without_dir);
+        }else{
+            mvwprintw(window, height/2.5 +(4+i+2), 2, "%s", path_without_dir);
+        }
     }
 
 

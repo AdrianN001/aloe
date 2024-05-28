@@ -1,7 +1,6 @@
 #ifndef __GRAPHIC_H_
 #define __GRAPHIC_H_
 
-// nigger
 
 #include "aloe/graphic/base.h"
 #include "aloe/graphic/file_editor.h"

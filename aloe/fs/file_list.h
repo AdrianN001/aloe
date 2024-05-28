@@ -38,6 +38,7 @@ void file_list_force_close_file(file_list_t* file_list);
 /* Closes the file after it saves */
 void file_list_save_and_close_file(file_list_t* file_list);
 
+void file_list_close_all(file_list_t* file_list);
 
 
 #endif

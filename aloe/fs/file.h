@@ -15,6 +15,7 @@ typedef struct{
 
     bool dirty;
     char* file_name;
+    char* absolute_file_name;
 } file_t;
 
 file_t open_file(char* path);

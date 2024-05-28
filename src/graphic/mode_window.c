@@ -3,6 +3,8 @@
 #include "aloe/fs.h"
 #include <string.h>
 
+
+
 static const char* normal_mode_text     = "NORMAL MODE";
 static const char* file_edit_mode_text  = "EDIT MODE";
 static const char* terminal_mode_text   = "TERMINAL MODE";

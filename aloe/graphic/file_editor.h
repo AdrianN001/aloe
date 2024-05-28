@@ -20,6 +20,10 @@
 #define CTRL(c) ((c) & 037)
 #endif
 
+#define WANT_TO_SAVE        1
+#define DONT_WANT_TO_SAVE   0
+#define CANCEL              -1
+
 
 WINDOW* start_file_editor_window(WINDOW* base_window);
 
@@ -29,6 +33,7 @@ int search_negative_row_offset(file_t* file);
 // Search for a new line downwards to move the view to
 void update_file_editor_window(WINDOW* window, file_list_t* file_list, int character);
 
-void show_save_popup_window(int start_x, int start_y);
+void show_saved_popup_window(int start_x, int start_y);
+int show_close_popup_window(int start_x, int start_y);
 
 #endif 

@@ -61,6 +61,7 @@ void file_list_force_close_file(file_list_t* file_list){
         file_list->active_file = &file_list->open_files[file_list->active_file_pointer];
     }
     else{
+        /* Pointer arithmetic <3 */
         for (file_t* i = file_list->active_file; i != &file_list->open_files[file_list->open_file_n-1] ;  ){
             *i = *(++i);
         }
@@ -73,4 +74,11 @@ void file_list_force_close_file(file_list_t* file_list){
 void file_list_save_and_close_file(file_list_t* file_list){
     save_file(file_list->active_file);
     file_list_force_close_file(file_list);
+}
+
+
+void file_list_close_all(file_list_t* file_list){
+    for (int i = 0; i < file_list->open_file_n;i++){
+        close_file(&file_list->open_files[i]);
+    }
 }
