@@ -153,7 +153,7 @@ void update_workspace_window(WINDOW* window,dir_t* directory, file_list_t* file_
     }
 
     mvwprintw(window, 5+ directory->n_subdir +2, 2, "<-- Go to parent directory"); 
-    mvwprintw(window, 5+ directory->n_subdir +4, 2, "--> Open the directory"); 
+    mvwprintw(window, 5+ directory->n_subdir +4, 2, "--> Open the directory/file"); 
 
 
     /* Files */
