@@ -70,6 +70,7 @@ int file_list_try_close_file(file_list_t* file_list){
         return -1;
     }
     file_list_force_close_file(file_list);
+    return 0;
 }
 
 void file_list_force_close_file(file_list_t* file_list){

@@ -48,7 +48,7 @@ file_info_t get_file_metadata(file_t* file){
     char* last_time_accessed = ctime(&file_stat.st_atime);
     char* last_time_modified = ctime(&file_stat.st_mtime);
     
-    const char* file_type = match_file_extension_with_file_type((const char*)file->file_name);
+    char* file_type = match_file_extension_with_file_type(file->file_name);
     char* file_owner = get_owner(&file_stat);
 
     return (file_info_t){
@@ -70,7 +70,7 @@ char* get_file_extension_from_path(char* file_path){
     return extension; // Return the file extension
 }
 
-const char* match_file_extension_with_file_type(const char* file_name){
+char* match_file_extension_with_file_type(char* file_name){
     add_matching(file_name, "Makefile", "Make file");
     add_matching(file_name, "CMakeLists.txt", "Cmake file");
     

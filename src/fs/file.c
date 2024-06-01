@@ -23,14 +23,13 @@ char* get_filename_by_path(char* path){
 
 
 file_t open_file(char* path){
-    const int additional_storage_in_buffer = 50;
     const int max_lines = 100;
 
     FILE *read_fp = fopen(path, "r");
    
     char* line = NULL;
     int chars_read;
-    int len = 0;
+    size_t len = 0;
     bool any_line_read = false;
 
     complex_buffer_t lines_buffer = complex_buffer_init(max_lines);
@@ -68,7 +67,6 @@ file_t open_file(char* path){
 }
 
 file_t create_new_file(char* file_name){
-    const int additional_storage_in_buffer = 50;
     const int max_lines = 100;
     FILE *fp = fopen(file_name, "w");
     if (fp == NULL){

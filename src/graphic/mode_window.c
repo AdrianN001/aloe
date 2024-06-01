@@ -2,7 +2,7 @@
 #include "aloe/assert.h"
 #include "aloe/fs.h"
 #include <string.h>
-
+    //asd asd
 
 
 static const char* normal_mode_text     = "NORMAL MODE";
@@ -34,8 +34,7 @@ WINDOW* start_mode_window(WINDOW* base){
 }
 
 void update_mode_window(WINDOW* window, int current_mode){
-    const int x_top = 190;
-    const int y_top = 40;
+
     const int height = 5;
     const int width  = 45;
     werase(window);

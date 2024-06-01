@@ -41,8 +41,6 @@ WINDOW* start_file_info_window(WINDOW* base, file_t* file){
 }
 
 void update_file_info_window(WINDOW* window, file_t* new_file){
-    const int x_top = 140;
-    const int y_top = 53;
     const int height = 5;
     const int width  = 70;
     werase(window);

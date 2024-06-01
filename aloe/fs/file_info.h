@@ -20,7 +20,7 @@ typedef struct {
 } file_info_t;
 
 char* get_file_extension_from_path(char* file_path);
-const char* match_file_extension_with_file_type(const char* file_name);
+char* match_file_extension_with_file_type(char* file_name);
 
 char* format_file_size(long long bytes, char* out);
 

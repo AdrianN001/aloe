@@ -48,7 +48,7 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
 
     
     switch(character){
-        case (int)NULL:{
+        case (int)0:{
             break;
         }
         case KEY_ARROW_UP :{
@@ -209,7 +209,7 @@ void show_saved_popup_window(int start_x, int start_y){
 
     char ch;
 
-    while ((ch = getch()))
+    while ((ch = wgetch(popup))) 
         if (ch != ERR)
             break;
 

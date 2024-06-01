@@ -35,7 +35,7 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
     /* Subdirs */
 
     const char* subdir_text = "------|Subdirectories|------";
-    mvwprintw(workspace_window, 4, width/2 - strlen(subdir_text)/2, subdir_text);
+    mvwprintw(workspace_window, 4, width/2 - strlen(subdir_text)/2, "%s", subdir_text);
 
     for (int i = 0; i < directory->n_subdir; i++){
         char* path_without_dir = get_filename_by_path(directory->subdirectories[i].dir_path);
@@ -53,7 +53,7 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
     /* Files */
 
     const char* files_text = "------|Files|------";
-    mvwprintw(workspace_window, height/2.5+ 5+ directory->n_subdir, width/2 - strlen(files_text)/2, files_text);
+    mvwprintw(workspace_window, height/2.5+ 5+ directory->n_subdir, width/2 - strlen(files_text)/2, "%s",files_text);
 
     for (int i = directory->n_subdir; i < directory->n_subdir + directory->n_files; i++){
         char* path_without_dir = get_filename_by_path(directory->files[i - directory->n_subdir]);
@@ -72,8 +72,6 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
 
 void update_workspace_window(WINDOW* window,dir_t* directory, file_list_t* file_list,  int character_pressed){
 
-    const int x_top = 190;
-    const int y_top = 0;
     const int height = 40;
     const int width  = 45;
 
@@ -145,7 +143,7 @@ void update_workspace_window(WINDOW* window,dir_t* directory, file_list_t* file_
     /* Subdirs */
 
     const char* subdir_text = "------|Subdirectories|------";
-    mvwprintw(window, 4, width/2 - strlen(subdir_text)/2, subdir_text);
+    mvwprintw(window, 4, width/2 - strlen(subdir_text)/2, "%s", subdir_text);
 
     for (int i = 0; i < directory->n_subdir; i++){
         char* path_without_dir = get_filename_by_path(directory->subdirectories[i].dir_path);
@@ -163,7 +161,7 @@ void update_workspace_window(WINDOW* window,dir_t* directory, file_list_t* file_
     /* Files */
 
     const char* files_text = "------|Files|------";
-    mvwprintw(window, height/2.5+ 5+ directory->n_subdir, width/2 - strlen(files_text)/2, files_text);
+    mvwprintw(window, height/2.5+ 5+ directory->n_subdir, width/2 - strlen(files_text)/2, "%s", files_text);
 
     for (int i = directory->n_subdir; i < directory->n_subdir + directory->n_files; i++){
         char* path_without_dir = get_filename_by_path(directory->files[i - directory->n_subdir]);
