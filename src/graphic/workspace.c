@@ -85,6 +85,7 @@ void update_workspace_window(WINDOW* window,dir_t* directory, file_list_t* file_
     switch(character_pressed){
         case KEY_ARROW_DOWN:{
             directory->pointer = (directory->pointer + 1) % (directory->n_files + directory->n_subdir );
+
             break;
         }
         case KEY_ARROW_UP:{
@@ -126,14 +127,17 @@ void update_workspace_window(WINDOW* window,dir_t* directory, file_list_t* file_
                 strcpy(&full_name[size_fullpath+1], choosen_file);
 
 
-                file_list_append(file_list, full_name);
-                file_list->active_file_pointer = file_list->open_file_n-1;
-                file_list->active_file = &(file_list->open_files[file_list->active_file_pointer]);
+                if(file_list_append(file_list, full_name) != NULL){
+                    file_list->active_file_pointer = file_list->open_file_n-1;
+                    file_list->active_file = &(file_list->open_files[file_list->active_file_pointer]);
+                }
             }
             
             break;
         }
     }
+
+
     char* abs_path = realpath( directory->dir_path,NULL);
     mvwprintw(window, 0, width/2 - strlen(abs_path)/2, "|%s|", abs_path);
     free(abs_path);

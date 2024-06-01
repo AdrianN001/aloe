@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "aloe/buffer.h"
 #include "aloe/graphic.h"
 #include "aloe/assert.h"
 
@@ -143,15 +144,15 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
     for (int i = 0; i < file_list->open_file_n; i++){
         if (file_list->active_file == &file_list->open_files[i]){
             if(file_list->open_files[i].dirty){
-                mvwprintw(window, 0, 20+i*20, "|*%s|", file_list->open_files[i].file_name);
+                mvwprintw(window, 0, 20+i*30, "|*%s*|", file_list->open_files[i].file_name);
             }else{
-                mvwprintw(window, 0, 20+i*20, "|%s|", file_list->open_files[i].file_name);
+                mvwprintw(window, 0, 20+i*30, "|%s|", file_list->open_files[i].file_name);
             }
         }else{
             if(file_list->open_files[i].dirty){
-                mvwprintw(window, 0, 20+i*20, "*%s", file_list->open_files[i].file_name);
+                mvwprintw(window, 0, 20+i*30, "*%s*", file_list->open_files[i].file_name);
             }else{
-                mvwprintw(window, 0, 20+i*20, "%s", file_list->open_files[i].file_name);
+                mvwprintw(window, 0, 20+i*30, "%s", file_list->open_files[i].file_name);
             }
         }
     }
@@ -269,4 +270,51 @@ CLEANING:
     delwin(popup);
 
     return result;
+}
+
+buffer_t show_new_file_save_window(int start_x, int start_y){
+    buffer_t input_buffer = buffer_init();
+    char* message = "What should be the name of the file? ";
+    char* start_of_input_field = ">";
+    int height = 5;
+    int width = 5 + (strlen(message) / sizeof(char));
+    WINDOW* popup;
+
+    popup = newwin(
+        height,
+        width, 
+        start_x - (height/2),
+        start_y - (width/2)
+    );
+
+    mvwaddstr(popup, 1, 2, message);
+    mvwaddstr(popup, 2, 2, start_of_input_field);
+
+    box(popup, 0, 0);
+    wrefresh(popup);
+    nodelay(popup, true);
+
+    char ch;
+
+    int result = 0; 
+
+    while ((ch = getch()))
+        switch(ch){
+            case ERR:{
+                continue;
+            }
+            default:{
+                buffer_write_at(&input_buffer, ch, input_buffer.pointer);
+                mvwaddstr(popup, 2, 4, input_buffer.data);
+
+                break;
+            }
+        }
+
+CLEANING:
+    werase(popup);
+    wrefresh(popup);
+    delwin(popup);
+
+    return input_buffer;
 }

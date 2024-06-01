@@ -14,7 +14,7 @@ typedef struct buffer{
 buffer_t buffer_init_by_array(char* input, size_t size_of_inputbuffer, const int additional_storage);
 
 /* The other way is to create a fresh, new buffer */
-buffer_t buffer_init(int size, int max_size);
+buffer_t buffer_init(void);
 
 void buffer_free(buffer_t* buffer);
 void buffer_resize(buffer_t* buffer, size_t new_buffer_size);

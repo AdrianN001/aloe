@@ -48,12 +48,17 @@ file_t open_file(char* path){
         complex_buffer_append(&lines_buffer, empty_buffer, 0);
     }
     fseek(read_fp, 0L, SEEK_SET);
+
+    size_t len_of_path = strlen(path);
+    char* path_copy = malloc(sizeof(char) * len_of_path+1);
+    strncpy(path_copy, path, len_of_path);
+    path_copy[len_of_path] = '\0';
     
     return (file_t){
         .buffer = lines_buffer,
         .dirty = false,
-        .file_name = get_filename_by_path(path),
-        .absolute_file_name = path,
+        .file_name = get_filename_by_path(path_copy),
+        .absolute_file_name = path_copy,
         .fp = read_fp,
         .row_pointer = 0,
         .row_offset = 0,
@@ -105,6 +110,7 @@ int save_file(file_t* file){
 
 
 int close_file(file_t* file){
+    free(file->absolute_file_name);
     complex_buffer_free(&(file->buffer));
     fclose(file->fp);
     return 0;

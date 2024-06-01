@@ -25,6 +25,13 @@ file_t* file_list_append(file_list_t* file_list, char* path){
     if( file_list->open_file_n >= MAX_FILES_ALLOWED){
         return NULL;
     }
+    // Check if the file was opened previously
+    for ( int i = 0; i < file_list->open_file_n; i++){
+        if (strcmp(path, file_list->open_files[i].absolute_file_name) == 0){
+            return NULL;
+        }
+    }
+
     file_list->open_files[file_list->open_file_n] = open_file(path);
     if (file_list->active_file == NULL ){
         file_list->active_file = &file_list->open_files[file_list->open_file_n];

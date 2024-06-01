@@ -3,10 +3,13 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/inotify.h>
 
+//asd
 
 #include "aloe/fs.h"
 #include "aloe/graphic.h"
+#include "aloe/assert.h"
 
 static volatile int keep_running = 1;
 
@@ -28,12 +31,11 @@ int main(int argc, char** argv){
 
     dir_t workspace;
     file_list_t file_list = file_list_init();
-    file_t* main_file = NULL;
 
     if(type_of_path == VALID_DIRECTORY){
         workspace = create_directory_object(path, 4);
     }else if(type_of_path == VALID_FILE){
-        main_file = file_list_append(&file_list, path);
+        file_list_append(&file_list, path);
     }
     (void)file_list_append(&file_list, "src/graphic/mode_window.c");
     (void)file_list_append(&file_list, "aloe/buffer.h");
@@ -65,6 +67,8 @@ int main(int argc, char** argv){
                 update_mode_window(mode_window, current_mode);
                 goto SLEEP;
             }
+            update_workspace_window(workspace_window, &workspace, &file_list, (char)NULL );
+
             switch((char)input){
                 case KEY_ARROW_LEFT:{
                     file_list_decrement_active_pointer(&file_list);

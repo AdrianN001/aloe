@@ -15,7 +15,7 @@ buffer_t buffer_init_by_array(char* input, size_t size_of_inputbuffer, const int
 
 }
 
-buffer_t buffer_init(int size, int max_size){
+buffer_t buffer_init(void){
     const int additional_storage_space = 30;
     char* data = calloc(sizeof(char), additional_storage_space);
     data[additional_storage_space] = '\0';

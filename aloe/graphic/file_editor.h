@@ -3,6 +3,8 @@
 
 #include <ncurses.h>
 #include "aloe/fs.h"
+#include "aloe/buffer.h"
+
 
 
 /* Keyboard mapping */
@@ -35,5 +37,8 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
 
 void show_saved_popup_window(int start_x, int start_y);
 int show_close_popup_window(int start_x, int start_y);
+
+buffer_t show_new_file_save_window(int start_x, int start_y);
+
 
 #endif 
