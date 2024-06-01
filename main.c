@@ -17,15 +17,28 @@ bool handle_mode_state_change_in_base_mode(int input_character, int* current_sta
 void interruptHandler(int);
 
 int main(int argc, char** argv){
+    WINDOW* base_window = NULL;
+    file_t file_created;
+    int type_of_path;
+    char* path;
+
 
     if(argc == 1){
-        return -1;
+        base_window = setup_base_window();
+        buffer_t file_name_buffer = show_new_file_save_window(LINES/2,  COLS/2);
+        char* file_name = file_name_buffer.data;
+
+        file_created = create_new_file(file_name);
+        path = file_created.absolute_file_name;
+        buffer_free(&file_name_buffer);
+        type_of_path = NO_FILE_WAS_GIVEN;
+    }else{
+        path = argv[1];
+        if ((type_of_path = lookup_path(path)) == INVALID){
+            return -1;
+        }
     }
-    char* path = argv[1];
-    int type_of_path;
-    if ((type_of_path = lookup_path(path)) == INVALID){
-        return -1;
-    }
+    
 
     signal(SIGINT, interruptHandler);
 
@@ -36,6 +49,8 @@ int main(int argc, char** argv){
         workspace = create_directory_object(path, 4);
     }else if(type_of_path == VALID_FILE){
         file_list_append(&file_list, path);
+    }else if(type_of_path == NO_FILE_WAS_GIVEN){
+        file_list_append_premade(&file_list, file_created);
     }
     (void)file_list_append(&file_list, "src/graphic/mode_window.c");
     (void)file_list_append(&file_list, "aloe/buffer.h");
@@ -44,8 +59,7 @@ int main(int argc, char** argv){
 
     int current_mode = BASE_MODE;
 
-
-    WINDOW* base_window = setup_base_window();
+    base_window = base_window == NULL ? setup_base_window(): base_window;
     WINDOW* workspace_window = start_workspace_window(base_window, type_of_path == VALID_DIRECTORY ? &workspace : NULL);
 
 
@@ -67,7 +81,6 @@ int main(int argc, char** argv){
                 update_mode_window(mode_window, current_mode);
                 goto SLEEP;
             }
-            update_workspace_window(workspace_window, &workspace, &file_list, (char)NULL );
 
             switch((char)input){
                 case KEY_ARROW_LEFT:{

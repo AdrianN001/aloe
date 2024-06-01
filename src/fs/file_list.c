@@ -39,6 +39,18 @@ file_t* file_list_append(file_list_t* file_list, char* path){
     return &file_list->open_files[file_list->open_file_n++];
 }
 
+file_t* file_list_append_premade(file_list_t* file_list, file_t file){
+    if( file_list->open_file_n >= MAX_FILES_ALLOWED){
+        return NULL;
+    }
+
+    file_list->open_files[file_list->open_file_n] = file;
+    if (file_list->active_file == NULL ){
+        file_list->active_file = &file_list->open_files[file_list->open_file_n];
+    }
+    return &file_list->open_files[file_list->open_file_n++];
+}
+
 void file_list_increment_active_pointer(file_list_t* file_list){
     file_list->active_file_pointer = (file_list->active_file_pointer + 1) % file_list->open_file_n;
     file_list->active_file = &file_list->open_files[file_list->active_file_pointer];

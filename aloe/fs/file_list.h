@@ -27,6 +27,8 @@ void file_list_free(file_list_t* file_list);
 /* Returns a pointer to the newly opened file */
 file_t* file_list_append(file_list_t* file_list, char* path);
 
+file_t* file_list_append_premade(file_list_t* file_list, file_t file);
+
 
 void file_list_increment_active_pointer(file_list_t* file_list);
 void file_list_decrement_active_pointer(file_list_t* file_list);

@@ -4,12 +4,13 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#define VALID_FILE 0
-#define VALID_DIRECTORY 1
-#define INVALID         2
+#define VALID_FILE          0
+#define VALID_DIRECTORY     1
+#define INVALID             2
+#define NO_FILE_WAS_GIVEN   3
 
-#define MAX_SUBDIR      10
-#define MAX_FILES       20
+#define MAX_SUBDIR          10
+#define MAX_FILES           20
 
 
 int lookup_path(const char *path);

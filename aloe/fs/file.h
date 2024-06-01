@@ -19,6 +19,7 @@ typedef struct{
 } file_t;
 
 file_t open_file(char* path);
+file_t create_new_file(char* file_name);
 
 int write_to_file(file_t* file, char character);
 int delete_from_file(file_t* file);

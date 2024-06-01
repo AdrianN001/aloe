@@ -67,6 +67,37 @@ file_t open_file(char* path){
 
 }
 
+file_t create_new_file(char* file_name){
+    const int additional_storage_in_buffer = 50;
+    const int max_lines = 100;
+    FILE *fp = fopen(file_name, "w");
+    if (fp == NULL){
+        return (file_t){};
+    }
+
+    complex_buffer_t lines_buffer = complex_buffer_init(max_lines);
+    complex_buffer_append_blank(&lines_buffer);
+
+
+    size_t len_of_path = strlen(file_name);
+    char* path_copy = malloc(sizeof(char) * len_of_path+1);
+    strncpy(path_copy, file_name, len_of_path);
+    path_copy[len_of_path] = '\0';
+
+        return (file_t){
+        .buffer = lines_buffer,
+        .dirty = false,
+        .file_name = get_filename_by_path(path_copy),
+        .absolute_file_name = path_copy,
+        .fp = fp,
+        .row_pointer = 0,
+        .row_offset = 0,
+        .collumn_pointer = 0
+    };
+
+
+}
+
 int write_to_file(file_t* file, char character){
 
     buffer_t* row_buffer = &(file->buffer.data[file->row_pointer]);

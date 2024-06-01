@@ -277,7 +277,7 @@ buffer_t show_new_file_save_window(int start_x, int start_y){
     char* message = "What should be the name of the file? ";
     char* start_of_input_field = ">";
     int height = 5;
-    int width = 5 + (strlen(message) / sizeof(char));
+    int width = 10 + (strlen(message) / sizeof(char));
     WINDOW* popup;
 
     popup = newwin(
@@ -287,6 +287,7 @@ buffer_t show_new_file_save_window(int start_x, int start_y){
         start_y - (width/2)
     );
 
+WRITING:
     mvwaddstr(popup, 1, 2, message);
     mvwaddstr(popup, 2, 2, start_of_input_field);
 
@@ -294,14 +295,23 @@ buffer_t show_new_file_save_window(int start_x, int start_y){
     wrefresh(popup);
     nodelay(popup, true);
 
-    char ch;
+    int ch;
 
-    int result = 0; 
 
-    while ((ch = getch()))
+    while ((ch = wgetch(popup))){
         switch(ch){
             case ERR:{
                 continue;
+            }
+            case KEY_ENTER:{
+                goto CLEANING;
+            }
+            case 127:{
+                buffer_delete_at(&input_buffer, input_buffer.pointer-1);
+                werase(popup);
+                mvwaddstr(popup, 2, 4, input_buffer.data);
+                goto WRITING;
+                break;
             }
             default:{
                 buffer_write_at(&input_buffer, ch, input_buffer.pointer);
@@ -310,6 +320,8 @@ buffer_t show_new_file_save_window(int start_x, int start_y){
                 break;
             }
         }
+        wrefresh(popup);
+    }
 
 CLEANING:
     werase(popup);
