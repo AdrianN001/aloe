@@ -12,7 +12,7 @@ file_search_result_t search_for_file(dir_t* directory, char* file_rgx){
     for (int i = 0; i < directory->n_files; i++){
         if(regexec(&regex_obj, directory->files[i], 0, NULL, 0) == 0){
             result[p] = malloc(sizeof(char) * 256);
-            snprintf(result[p], 256, "%s", directory->files[i] );
+            snprintf(result[p], 256, "%s/%s", directory->dir_path, directory->files[i] );
 
             p++;
         }
@@ -23,7 +23,7 @@ file_search_result_t search_for_file(dir_t* directory, char* file_rgx){
         
         for(int j = 0; p < MAX_FILE_SEARCH_RESULT && j < subdir_results.n_of_results ; p++, j++){
             result[p] = malloc(sizeof(char) * 256);
-            snprintf(result[p], 256, "%s/%s", directory->subdirectories[i].dir_path, subdir_results.result[j]);
+            snprintf(result[p], 256, "%s", subdir_results.result[j]);
         }
 
         free_file_search_result(&subdir_results);

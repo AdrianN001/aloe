@@ -5,7 +5,7 @@
 #include "file.h"
 
 
-#define MAX_FILES_ALLOWED 20
+#define MAX_FILES_ALLOWED 6
 
 /*
 

@@ -110,6 +110,7 @@ int main(int argc, char** argv){
                 case FILE_SEARCH_MODE_KEY:{
                     if(type_of_path == VALID_DIRECTORY){
                         start_file_search_window_popup(LINES /2, COLS /2, &workspace, &file_list, path);
+                        update_file_editor_window(file_editor_window,&file_list, (int)NULL);
                     }
                 }
             }

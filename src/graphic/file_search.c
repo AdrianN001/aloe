@@ -1,5 +1,6 @@
 #include "aloe/graphic.h"
 #include "aloe/fs.h"
+#include "aloe/assert.h"
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
@@ -42,10 +43,13 @@ void start_file_search_window_popup(int start_x, int start_y, dir_t* directory, 
                 continue;
             }
             case KEY_ENTER:{
+                char* chosen_file = res.result[result_pointer];
+                file_list_append(file_list, chosen_file);
                 goto CLEANING;
             }
             case KEY_ARROW_UP:{
-                result_pointer = (result_pointer == 0) ? res.n_of_results: result_pointer-1;
+                if(res.result == NULL) break;
+                result_pointer = (result_pointer == 0) ? res.n_of_results -1: result_pointer-1;
                 werase(popup);
                 box(popup, 0, 0);
 
@@ -60,6 +64,7 @@ void start_file_search_window_popup(int start_x, int start_y, dir_t* directory, 
                 break;
             }
             case KEY_ARROW_DOWN:{
+                if(res.result == NULL) break;
                 result_pointer = (result_pointer + 1) % res.n_of_results;
                 werase(popup);
                 box(popup, 0, 0);
