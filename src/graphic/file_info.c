@@ -32,10 +32,6 @@ WINDOW* start_file_info_window(WINDOW* base, file_t* file){
     }
 
 
-    
-
-
-
     wrefresh(file_info_window);
     return file_info_window;
 }

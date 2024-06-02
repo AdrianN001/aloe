@@ -17,6 +17,8 @@ bool handle_mode_state_change_in_base_mode(int input_character, int* current_sta
 void interruptHandler(int);
 
 int main(int argc, char** argv){
+    ESCDELAY = 0; // remove delay after pressing escape
+
     WINDOW* base_window = NULL;
     file_t file_created;
     int type_of_path;
@@ -103,6 +105,12 @@ int main(int argc, char** argv){
                     show_saved_popup_window(LINES /2 , COLS /2);
 
                     update_file_editor_window(file_editor_window,&file_list, (int)NULL);
+                    break;
+                }
+                case FILE_SEARCH_MODE_KEY:{
+                    if(type_of_path == VALID_DIRECTORY){
+                        start_file_search_window_popup(LINES /2, COLS /2, &workspace, &file_list, path);
+                    }
                 }
             }
         }
@@ -154,7 +162,7 @@ SLEEP:
     if(type_of_path == VALID_DIRECTORY){
         free_directory_object(&workspace);
     }
-    printf("Program exited successfully. Goodbye!\n");
+    printf("Program exited successfully. Goodbye & Rest a little bit.\n");
     
     return 0;
 

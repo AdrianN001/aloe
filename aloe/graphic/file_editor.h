@@ -39,19 +39,19 @@
 #undef KEY_ARROW_RIGHT
 #endif
 
-#define KEY_ENTER           0x0A
+#define KEY_ENTER           (int)0x0A
 
-#define KEY_TAB             0x09
-#define KEY_BACKSPACE       0x07
-#define KEY_ARROW_UP        0x03  
-#define KEY_ARROW_DOWN      0x02 
-#define KEY_ARROW_LEFT      0x04 
-#define KEY_ARROW_RIGHT     0x05 
-
+#define KEY_TAB             (int)0x09
+#define KEY_BACKSPACE       (int)0x07
+#define KEY_ARROW_UP        (int)0x03  
+#define KEY_ARROW_DOWN      (int)0x02 
+#define KEY_ARROW_LEFT      (int)0x04 
+#define KEY_ARROW_RIGHT     (int)0x05 
+#define KEY_ESCAPE          (int)27
 
 
 #ifndef CTRL
-#define CTRL(c) ((c) & 037)
+#define CTRL(c) ((c) & 31)
 #endif
 
 #define WANT_TO_SAVE        1
