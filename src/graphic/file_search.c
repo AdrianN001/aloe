@@ -12,8 +12,8 @@ void start_file_search_window_popup(int start_x, int start_y, dir_t* directory, 
     buffer_t input_buffer = buffer_init();
     char* message = "File finder 15 (ff15)";
     char* start_of_input_field = ">";
-    int height = 20;
-    int width = 60 + (strlen(message) / sizeof(char));
+    int height = (int)(LINES* 0.34);
+    int width = (int)(COLS* 0.254) + (strlen(message) / sizeof(char));
     WINDOW* popup;
 
     popup = newwin(

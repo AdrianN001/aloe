@@ -40,6 +40,7 @@ int main(int argc, char** argv){
             return -1;
         }
     }
+
     
 
     signal(SIGINT, interruptHandler);
@@ -63,6 +64,8 @@ int main(int argc, char** argv){
 
     base_window = base_window == NULL ? setup_base_window(): base_window;
     WINDOW* workspace_window = start_workspace_window(base_window, type_of_path == VALID_DIRECTORY ? &workspace : NULL);
+
+
 
 
     WINDOW* mode_window = start_mode_window(base_window);

@@ -14,10 +14,12 @@ static const char* workspace_mode_text  = "WORKSPACE MODE";
 WINDOW* start_mode_window(WINDOW* base){
     WINDOW* mode_window;
 
-    const int x_top = 190;
-    const int y_top = 40;
-    const int height = 5;
-    const int width  = 45;
+    const int x_top =   (int)(COLS* 0.807);
+    const int y_top =   (int)(LINES* 0.69);
+    const int height =  (int)(LINES* 0.1);
+    const int width  =  (int)(COLS* 0.191);
+
+
     
     mode_window = subwin(base, height, width, y_top, x_top);
 
@@ -35,8 +37,8 @@ WINDOW* start_mode_window(WINDOW* base){
 
 void update_mode_window(WINDOW* window, int current_mode){
 
-    const int height = 5;
-    const int width  = 45;
+    const int height =  (int)(LINES* 0.1);
+    const int width  =  (int)(COLS* 0.191);
     werase(window);
     box(window, 0, 0);
 

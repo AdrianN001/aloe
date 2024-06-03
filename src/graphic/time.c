@@ -8,10 +8,10 @@
 WINDOW* start_time_window(WINDOW* base){
     WINDOW* time_window;
 
-    const int x_top = 210;
-    const int y_top = 53;
-    const int height = 5;
-    const int width  = 26;
+    const int x_top =   (int)(COLS*0.889);
+    const int y_top =   (int)(LINES*0.92);
+    const int height =  (int)(LINES*0.1);
+    const int width  =  (int)(COLS*0.113);
     
     time_window = subwin(base, height, width, y_top, x_top);
 
@@ -38,9 +38,9 @@ void update_time_window(WINDOW* window){
     werase(window);
     box(window, 0, 0);
 
+    const int height =  (int)(LINES*0.1);
+    const int width  =  (int)(COLS*0.113);
 
-    const int height = 5;
-    const int width  = 26;
 
     char render_buffer[20] = {0};
     size_t chars_written = fetch_current_date(render_buffer);

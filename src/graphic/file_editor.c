@@ -14,8 +14,8 @@ WINDOW* start_file_editor_window(WINDOW* base_window){
 
     const int x_top = 0;
     const int y_top = 0;
-    const int height = 53;
-    const int width  = 190;
+    const int height = (int)(LINES*0.92);
+    const int width  = (int)(COLS*0.805);
     
     file_editor_window = subwin(base_window, height, width, y_top, x_top);
 
@@ -44,7 +44,7 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
 
     const int row_rendering_offset = 2;
     const int collumn_rendering_offset = 5;
-    const int max_rendered_line = 50;
+    const int max_rendered_line = (int)(LINES*0.863);
 
     
     switch(character){

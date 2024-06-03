@@ -8,9 +8,9 @@ WINDOW* start_terminal_window(WINDOW* base){
     WINDOW* terminal_window;
 
     const int x_top = 0;
-    const int y_top = 53;
-    const int height = 5;
-    const int width  = 140;
+    const int y_top =   (int)(LINES*0.92);
+    const int height =  (int)(LINES*0.1);
+    const int width  =  (int)(COLS*0.593);
     
     terminal_window = subwin(base, height, width, y_top, x_top);
 

@@ -9,10 +9,10 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
 
     WINDOW* workspace_window;
 
-    const int x_top = 190;
+    const int x_top =   (int)(COLS* 0.807);
     const int y_top = 0;
-    const int height = 40;
-    const int width  = 45;
+    const int height =  (int)(LINES*0.69);
+    const int width  =  (int)(COLS* 0.191);
     
     workspace_window = subwin(base, height, width, y_top, x_top);
     assert(workspace_window != NULL);
@@ -72,8 +72,9 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
 
 void update_workspace_window(WINDOW* window,dir_t* directory, file_list_t* file_list,  int character_pressed){
 
-    const int height = 40;
-    const int width  = 45;
+    const int height =  (int)(LINES*0.69);
+    const int width  =  (int)(COLS* 0.191);
+    
 
     werase(window);
     box(window, 0,0);
