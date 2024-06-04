@@ -25,7 +25,7 @@ char* get_filename_by_path(char* path){
 file_t open_file(char* path){
     const int max_lines = 100;
 
-    FILE *read_fp = fopen(path, "r");
+    FILE *fp = fopen(path, "r");
    
     char* line = NULL;
     int chars_read;
@@ -34,7 +34,7 @@ file_t open_file(char* path){
 
     complex_buffer_t lines_buffer = complex_buffer_init(max_lines);
     
-    while((chars_read = getdelim(&line, &len, '\n', read_fp)) != -1){
+    while((chars_read = getdelim(&line, &len, '\n', fp)) != -1){
         if (chars_read == 0){
             complex_buffer_append_blank(&lines_buffer);
         }else{
@@ -43,10 +43,9 @@ file_t open_file(char* path){
         any_line_read = true;
     }
     if (!any_line_read){
-        char empty_buffer[1];
-        complex_buffer_append(&lines_buffer, empty_buffer, 0);
+        complex_buffer_append_blank(&lines_buffer);
     }
-    fseek(read_fp, 0L, SEEK_SET);
+    fseek(fp, 0L, SEEK_SET);
 
     size_t len_of_path = strlen(path);
     char* path_copy = malloc(sizeof(char) * len_of_path+1);
@@ -58,7 +57,7 @@ file_t open_file(char* path){
         .dirty = false,
         .file_name = get_filename_by_path(path_copy),
         .absolute_file_name = path_copy,
-        .fp = read_fp,
+        .fp = fp,
         .row_pointer = 0,
         .row_offset = 0,
         .collumn_pointer = 0
@@ -102,14 +101,14 @@ int write_to_file(file_t* file, char character){
 
     buffer_write_at(row_buffer, character, file->collumn_pointer);
 
-    return -1;
+    return 0;
 }
 int delete_from_file(file_t* file){
     buffer_t* row_buffer = &(file->buffer.data[file->row_pointer]);
 
     buffer_delete_at(row_buffer, file->collumn_pointer);
 
-    return -1;
+    return 0;
 }
 
 int save_file(file_t* file){
