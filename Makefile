@@ -1,4 +1,4 @@
-CC          := clang-17
+CC          := clang
 CFLAGS      := 
 PROJECT_DIR := $(shell pwd)
 CFLAGS      += -I$(PROJECT_DIR) -Wall 

@@ -55,10 +55,6 @@ int main(int argc, char** argv){
     }else if(type_of_path == NO_FILE_WAS_GIVEN){
         file_list_append_premade(&file_list, file_created);
     }
-    (void)file_list_append(&file_list, "src/graphic/mode_window.c");
-    (void)file_list_append(&file_list, "aloe/buffer.h");
-    (void)file_list_append(&file_list, "aloe/graphic.h");
-    (void)file_list_append(&file_list, "aloe/fs.h");
 
     int current_mode = BASE_MODE;
 
@@ -112,7 +108,7 @@ int main(int argc, char** argv){
                 }
                 case FILE_SEARCH_MODE_KEY:{
                     if(type_of_path == VALID_DIRECTORY){
-                        start_file_search_window_popup(LINES /2, COLS /2, &workspace, &file_list, path);
+                        start_file_search_window_popup(&workspace, &file_list);
                         update_file_editor_window(file_editor_window,&file_list, (int)NULL);
                     }
                 }

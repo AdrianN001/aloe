@@ -5,7 +5,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-void start_file_search_window_popup(int start_x, int start_y, dir_t* directory, file_t* file_list, char* project_directory){
+void start_file_search_window_popup(dir_t* directory, file_t* file_list){
+    const int start_x = LINES /2;
+    const int start_y = COLS /2;
+    
     file_search_result_t res = {.result = NULL, .n_of_results = 1};
     bool has_been_freed = false;
     size_t result_pointer = 0;
@@ -59,7 +62,7 @@ void start_file_search_window_popup(int start_x, int start_y, dir_t* directory, 
                 mvwaddstr(popup, 10, 2, start_of_input_field);
 
 
-                render_result_to_popup_page(popup, &res, result_pointer, project_directory);
+                render_result_to_popup_page(popup, &res, result_pointer);
                 wrefresh(popup);
                 break;
             }
@@ -75,7 +78,7 @@ void start_file_search_window_popup(int start_x, int start_y, dir_t* directory, 
                 mvwaddstr(popup, 10, 2, start_of_input_field);
 
 
-                render_result_to_popup_page(popup, &res, result_pointer, project_directory);
+                render_result_to_popup_page(popup, &res, result_pointer);
                 wrefresh(popup);
                 break;
             }
@@ -115,7 +118,7 @@ void start_file_search_window_popup(int start_x, int start_y, dir_t* directory, 
                 mvwaddstr(popup, 10, 2, start_of_input_field);
 
 
-                render_result_to_popup_page(popup, &res, result_pointer, project_directory);
+                render_result_to_popup_page(popup, &res, result_pointer);
                 has_been_freed = false;
                 wrefresh(popup);
 
@@ -137,7 +140,7 @@ CLEANING:
 }
 
 
-void render_result_to_popup_page(WINDOW* popup_page, file_search_result_t* result, size_t pointer_position, char* project_directory){
+void render_result_to_popup_page(WINDOW* popup_page, file_search_result_t* result, size_t pointer_position){
 
     for(int i = 0; i < result->n_of_results; i++){
         if(i == pointer_position){

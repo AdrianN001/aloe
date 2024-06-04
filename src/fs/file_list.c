@@ -78,6 +78,7 @@ void file_list_force_close_file(file_list_t* file_list){
     if(file_list->active_file == &file_list->open_files[file_list->open_file_n-1]){
         file_list->open_file_n--;
         file_list->active_file_pointer--;
+        // TODO Check if it was the only file opened
         file_list->active_file = &file_list->open_files[file_list->active_file_pointer];
     }
     else{

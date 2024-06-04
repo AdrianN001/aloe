@@ -6,5 +6,4 @@
 #include "aloe/buffer/complex_buffer.h"
 
 
-
 #endif
