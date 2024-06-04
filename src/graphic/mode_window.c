@@ -2,7 +2,6 @@
 #include "aloe/assert.h"
 #include "aloe/fs.h"
 #include <string.h>
-    //asd asd
 
 
 static const char* normal_mode_text     = "NORMAL MODE";

@@ -42,6 +42,7 @@ void buffer_resize(buffer_t* buffer, size_t new_buffer_size){
 void buffer_write_at(buffer_t* buffer, char charater, int position){
     if (buffer->pointer == buffer->max_size){
         buffer_resize(buffer, 2*buffer->max_size);
+        buffer->max_size *= 2;
     }
     /* Append to the end of the file */
     if (position == buffer->pointer){
