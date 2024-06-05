@@ -2,8 +2,8 @@
 #define __COMMANDER_H_
 
 
-#include "aloe/commander/command.h"
 #include "aloe/commander/command_list.h"
+#include "aloe/commander/command.h"
 
 
 

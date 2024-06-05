@@ -69,7 +69,7 @@ file_t create_new_file(char* file_name){
     const int max_lines = 100;
     FILE *fp = fopen(file_name, "w");
     if (fp == NULL){
-        return (file_t){};
+        return (file_t){.fp=NULL};
     }
 
     complex_buffer_t lines_buffer = complex_buffer_init(max_lines);

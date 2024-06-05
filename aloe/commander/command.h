@@ -8,12 +8,11 @@
 typedef struct command {
     char* name;
     char* description;
+    int shortcut;
 
     void (*callback)(WINDOW*, file_list_t*, dir_t*);
 } command_t;
 
-
-void init_commands();
 
 
 #endif

@@ -5,11 +5,10 @@
 #include <signal.h>
 #include <sys/inotify.h>
 
-//asd
-
 #include "aloe/fs.h"
 #include "aloe/graphic.h"
 #include "aloe/assert.h"
+#include "aloe/commander.h"
 
 static volatile int keep_running = 1;
 
@@ -41,7 +40,8 @@ int main(int argc, char** argv){
         }
     }
 
-    
+    command_list_t command_list = init_commands();
+
 
     signal(SIGINT, interruptHandler);
 
@@ -155,14 +155,14 @@ SLEEP:
     wrefresh(base_window);
     delwin(base_window);
     endwin();
-
+    free_command_list(&command_list);
 
     file_list_close_all(&file_list);
     file_list_free(&file_list);
     if(type_of_path == VALID_DIRECTORY){
         free_directory_object(&workspace);
     }
-    printf("Program exited successfully. Goodbye & Rest a little bit.\n");
+    printf("Program exited successfully. Goodbye && Rest a little bit.\n");
     
     return 0;
 

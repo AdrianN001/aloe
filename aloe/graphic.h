@@ -11,6 +11,7 @@
 #include "aloe/graphic/mode.h"
 #include "aloe/graphic/file_search.h"
 #include "aloe/graphic/mode_window.h"
+#include "aloe/graphic/word_counter.h"
 
 
 #endif
