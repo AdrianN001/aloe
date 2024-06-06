@@ -16,7 +16,7 @@ ObjectFiles := $(patsubst $(SourceDirectory)/%.c, $(SourceDirectory)/%.o, $(Sour
 MainFileObject := main.o
 
 
-BinaryOutput := a.out
+BinaryOutput := ./alo3
 
 
 all := $(BinaryOutput)
