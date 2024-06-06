@@ -8,10 +8,10 @@ A terminal based text editor written in pure C and ncurses
 
 ## Building
 ```
-$ git clone https://github.com/AdrianN001/Wh0r3X_
-$ cd Wh0r3X_
+$ git clone https://github.com/AdrianN001/aloe
+$ cd aloe
 $ make
-$ ./a.out
+$ ./alo3 .
 ```
 
 ### Requirements and Dependencies
