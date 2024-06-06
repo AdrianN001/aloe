@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/inotify.h>
+#include <locale.h>
 
 #include "aloe/fs.h"
 #include "aloe/graphic.h"
@@ -17,6 +18,8 @@ void interruptHandler(int);
 
 int main(int argc, char** argv){
     ESCDELAY = 0; // remove delay after pressing escape
+
+        setlocale(LC_ALL, "");
 
     WINDOW* base_window = NULL;
     file_t file_created;

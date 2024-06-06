@@ -23,7 +23,7 @@ command_list_t init_commands(){
 
     //           Name                Description                    Shortcut     Callback
     ADD_COMMAND("File finder 15",   "Searches for a file",          ((int)'s'),  file_search_callback,                  command_list);
-    ADD_COMMAND("Word counter",     "Displays the number of words", NULL,        word_counter_command_callback,         command_list);
+    ADD_COMMAND("Word counter",     "Displays the number of words", ((int)NULL),        word_counter_command_callback,         command_list);
     ADD_COMMAND("New file",         "Creates a new file",           ((int)'n'),  new_file_command_callback,             command_list);
 
 

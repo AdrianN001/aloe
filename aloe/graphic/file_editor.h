@@ -60,6 +60,7 @@
 
 
 WINDOW* start_file_editor_window(WINDOW* base_window);
+void render_blank_screen(WINDOW* window);
 
 
 // Search for a new line downwards to move the view to

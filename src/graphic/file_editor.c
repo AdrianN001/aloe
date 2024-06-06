@@ -36,6 +36,7 @@ WINDOW* start_file_editor_window(WINDOW* base_window){
 void update_file_editor_window(WINDOW* window, file_list_t* file_list, int character){
     file_t* active_file = file_list->active_file;
     if(active_file == NULL){
+        render_blank_screen(window);
         return;
     }
     complex_buffer_t* buffer = &(active_file->buffer);
@@ -329,4 +330,61 @@ CLEANING:
     delwin(popup);
 
     return input_buffer;
+}
+
+
+void render_blank_screen(WINDOW* window){
+    const int width  = (int)(COLS*0.805);
+
+
+    char* icon[] = {
+        "⠀⠀⠀⢀⣴⣾⣦⣀⣀⣠⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⠈⢻⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠀⠀⢀⣾⣿⡿⠋⠁⠈⠙⢿⣿⣷⣶⣶⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⢸⣿⣿⣿⣿⡇⠀⠀⠀⠀⢸⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "⠀⠘⠛⠛⠻⣿⣷⣤⣀⣀⣴⣿⣿⠏⢀⣀⠀⠀⠀⠀⣾⣿⣿⡇⠀⠀⠀⠀⣀⠀",
+        "⠀⠀⠀⠀⠀⣾⣿⣿⡿⠿⢿⣿⣿⣷⣿⣿⣧⠀⣀⣀⣿⣿⣿⣇⣀⡀⠀⣼⣿⠀",
+        "⠀⠀⠀⠀⠸⠿⣿⡿⠀⠀⠀⠻⠿⠋⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠁⢀⣴⣤⣀⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠿⣿⣿⣿⣿⣿⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠈⢻⣿⣿⣿⠀",
+        "⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⠀",
+        "⠀⠀⠀⠀⠀⠀⠘⠛⠛⠻⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⠀",
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠛⠛⠛⠛⠛⠛⠛⠛⠂⠀⠀⠀⠀⠒⠛⠛⠛⠛⠀",
+    };
+
+     for (int i = 0; i < 14; i++){
+        mvwaddstr(window, i + 10, width/2 - 91/5, icon[i]);
+    }
+    wrefresh(window);
+
+
+
+    char* tool_tips[] = {
+        "                              ",
+        "                              ",
+        "        <Tool tips>:          ",
+        "                              ",
+        "                              ",
+        "  Ctrl+N => New File          ",
+        "  Ctrl+P => Command line      ",
+        "                              ",
+        "          <Modes>:            ",
+        "                              ",
+        " (a)       Text Editor        ",
+        " (t)       Terminal           ",
+        " (w)       Workspace          ",
+        " (esc)     Normal             ",
+        "                              ",
+        "                              ",
+    };
+    const size_t row_size = strlen(tool_tips[0]);
+
+    const size_t n_rows = 16;
+
+    for (int i = 0; i < n_rows; i++){
+        mvwaddstr(window, i + 30, width/2 - row_size/2, tool_tips[i]);
+    }
+    wrefresh(window);
 }

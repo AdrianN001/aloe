@@ -1,5 +1,6 @@
 #include "aloe/graphic.h"
 #include <ncurses.h>
+#include <string.h>
 
 
 

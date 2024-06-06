@@ -3,7 +3,7 @@ CFLAGS      :=
 PROJECT_DIR := $(shell pwd)
 CFLAGS      += -I$(PROJECT_DIR) -Wall 
 
-LDLIBS      := -lncurses
+LDLIBS      := -lncursesw
 
 SourceDirectory := src
 HeaderDirectory := aloe
