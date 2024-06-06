@@ -23,7 +23,7 @@ command_list_t init_commands(){
 
     //           Name                Description                    Shortcut     Callback
     ADD_COMMAND("File finder 15",   "Searches for a file",          ((int)'s'),  file_search_callback,                  command_list);
-    ADD_COMMAND("Word counter",     "Displays the number of words", ((int)NULL),        word_counter_command_callback,         command_list);
+    ADD_COMMAND("Word counter",     "Displays the number of words", ((int)NULL), word_counter_command_callback,         command_list);
     ADD_COMMAND("New file",         "Creates a new file",           ((int)'n'),  new_file_command_callback,             command_list);
 
 
@@ -32,7 +32,7 @@ command_list_t init_commands(){
 }
 
 command_list_t filter_commands(command_list_t* command_list, char* command_name){
-    command_list_t filtered_command_list;
+    command_list_t filtered_command_list = {.commands = malloc(sizeof(command_t) * 32), .n_of_commands=0};
 
     regex_t regex_obj;
     (void)regcomp(&regex_obj, command_name, 0);

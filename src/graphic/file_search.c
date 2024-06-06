@@ -12,7 +12,9 @@ void start_file_search_window_popup(dir_t* directory, file_t* file_list){
     file_search_result_t res = {.result = NULL, .n_of_results = 1};
     bool has_been_freed = false;
     size_t result_pointer = 0;
+
     buffer_t input_buffer = buffer_init();
+    
     char* message = "File finder 15 (ff15)";
     char* start_of_input_field = ">";
     int height = (int)(LINES* 0.34);
@@ -140,7 +142,7 @@ CLEANING:
 }
 
 
-void render_result_to_popup_page(WINDOW* popup_page, file_search_result_t* result, size_t pointer_position){
+void render_result_to_popup_page(  WINDOW* popup_page, file_search_result_t* result, size_t pointer_position){
 
     for(int i = 0; i < result->n_of_results; i++){
         if(i == pointer_position){

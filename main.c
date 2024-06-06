@@ -19,7 +19,7 @@ void interruptHandler(int);
 int main(int argc, char** argv){
     ESCDELAY = 0; // remove delay after pressing escape
 
-        setlocale(LC_ALL, "");
+    setlocale(LC_ALL, "");
 
     WINDOW* base_window = NULL;
     file_t file_created;
@@ -45,8 +45,8 @@ int main(int argc, char** argv){
 
     command_list_t command_list = init_commands();
 
-
     signal(SIGINT, interruptHandler);
+
 
     dir_t workspace;
     file_list_t file_list = file_list_init();
@@ -107,6 +107,10 @@ int main(int argc, char** argv){
                     show_saved_popup_window(LINES /2 , COLS /2);
 
                     update_file_editor_window(file_editor_window,&file_list, (int)NULL);
+                    break;
+                }
+                case CTRL('p'):{
+                    start_command_line(&command_list, base_window, &file_list, &workspace);
                     break;
                 }
                 case FILE_SEARCH_MODE_KEY:{

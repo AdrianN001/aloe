@@ -75,14 +75,25 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
             break;
         }
         case KEY_ARROW_LEFT:{
-            active_file->collumn_pointer = (active_file->collumn_pointer == 0) ? 0 : active_file->collumn_pointer -1;
+            if (active_file->collumn_pointer == 0){
+                active_file->row_pointer--;
+                active_file->collumn_pointer = active_file->buffer.data[active_file->row_pointer].pointer;
+            }else{
+                active_file->collumn_pointer--;
+            }
             break;
         }
         case KEY_ARROW_RIGHT:{
-            active_file->collumn_pointer = (active_file->collumn_pointer == active_file->buffer.data[active_file->row_pointer].pointer) ? active_file->collumn_pointer : active_file->collumn_pointer + 1;
+            if (active_file->collumn_pointer == active_file->buffer.data[active_file->row_pointer].pointer){
+                active_file->row_pointer++;
+                active_file->collumn_pointer = 0;
+            }else{
+                active_file->collumn_pointer++;
+            }
             break;
         }
         case KEY_ENTER:{
+            //TODO Make the line split if it wasnt pressed at the EOL
             active_file->dirty = true;
             complex_buffer_insert_at(&active_file->buffer, active_file->row_pointer + 1);
             active_file->collumn_pointer = 0;

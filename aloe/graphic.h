@@ -12,6 +12,7 @@
 #include "aloe/graphic/file_search.h"
 #include "aloe/graphic/mode_window.h"
 #include "aloe/graphic/word_counter.h"
+#include "aloe/graphic/command_line.h"
 
 
 #endif

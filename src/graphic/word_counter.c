@@ -8,7 +8,7 @@ void start_word_counter_popup(file_t* file){
     const int start_x = LINES /2;
     const int start_y = COLS /2;
     
-    char* message = "File length data";
+    char* message = "Word counter";
 
     int height = (int)(LINES* 0.34);
     int width = (int)(COLS* 0.254) + (strlen(message) / sizeof(char));
@@ -32,9 +32,13 @@ void start_word_counter_popup(file_t* file){
     noecho();
 
 
-    for(;;){}
+    char ch;
+    while ((ch = wgetch(popup))){
+        if (ch == KEY_ESCAPE){
+            break;
+        }
+    }
 
-CLEANING:
     werase(popup);
     wrefresh(popup);
     delwin(popup);

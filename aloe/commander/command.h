@@ -5,12 +5,15 @@
 #include "aloe/fs.h"
 
 
+typedef void (*command_callback_t)(WINDOW*, file_list_t*, dir_t*);
+
 typedef struct command {
     char* name;
     char* description;
     int shortcut;
 
-    void (*callback)(WINDOW*, file_list_t*, dir_t*);
+    command_callback_t callback;
+
 } command_t;
 
 
