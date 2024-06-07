@@ -77,7 +77,7 @@ void start_command_line(command_list_t* command_list, WINDOW* base_window, file_
                     render_command_results_to_popup(popup, command_list, cursor);
                 }else{
                     cursor = (cursor+1) % filtered_list.n_of_commands;
-                    render_command_results_to_popup(popup, filter_commands, cursor);
+                    render_command_results_to_popup(popup, &filtered_list, cursor);
                 }
 
                 wrefresh(popup);
