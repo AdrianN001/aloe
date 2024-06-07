@@ -8,6 +8,7 @@
 #include "aloe/buffer.h"
 #include "aloe/graphic.h"
 #include "aloe/assert.h"
+#include "aloe/fs.h"
 
 WINDOW* start_file_editor_window(WINDOW* base_window){
     WINDOW* file_editor_window;
@@ -93,11 +94,7 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
             break;
         }
         case KEY_ENTER:{
-            //TODO Make the line split if it wasnt pressed at the EOL
-            active_file->dirty = true;
-            complex_buffer_insert_at(&active_file->buffer, active_file->row_pointer + 1);
-            active_file->collumn_pointer = 0;
-            active_file->row_pointer++;
+            insert_new_line_to_file(file_list->active_file);
             break;
         }
         case KEY_BACKSPACE:{
@@ -374,11 +371,11 @@ void render_blank_screen(WINDOW* window){
 
     char* tool_tips[] = {
         "                              ",
-        "                              ",
         "        <Tool tips>:          ",
         "                              ",
         "                              ",
         "  Ctrl+N => New File          ",
+        "  Ctrl+F => Search for file   ",
         "  Ctrl+P => Command line      ",
         "                              ",
         "          <Modes>:            ",

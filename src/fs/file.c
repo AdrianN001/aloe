@@ -111,6 +111,39 @@ int delete_from_file(file_t* file){
     return 0;
 }
 
+int insert_new_line_to_file(file_t* file){
+    file->dirty = true;
+    buffer_t* prev_line = &file->buffer.data[file->row_pointer];
+    int coll_p = file->collumn_pointer;
+    
+    /*EOL*/
+    if( coll_p == prev_line->pointer){
+        complex_buffer_insert_at(&file->buffer, file->row_pointer + 1);
+        file->collumn_pointer = 0;
+        file->row_pointer++;
+        return 0;
+    }
+
+    char* substring_on_newline = &(prev_line->data[coll_p]);
+
+    complex_buffer_insert_at(&file->buffer, file->row_pointer + 1);
+    file->row_pointer++;
+    file->collumn_pointer = 0;
+    
+    buffer_t* new_line = &file->buffer.data[file->row_pointer];
+    
+    char chr;
+    while((chr = *substring_on_newline++) != '\0'){
+        buffer_write_at(new_line, chr, new_line->pointer);
+    }
+
+    prev_line->data[coll_p] = '\0';
+    prev_line->pointer = coll_p;
+
+    return 0;
+    
+}
+
 int save_file(file_t* file){
     file->fp = freopen(NULL, "w", file->fp);
     assert(file->fp != NULL);

@@ -23,6 +23,10 @@ file_t create_new_file(char* file_name);
 
 int write_to_file(file_t* file, char character);
 int delete_from_file(file_t* file);
+int insert_new_line_to_file(file_t* file);
+
+
+
 int save_file(file_t* file);
 
 

@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include "aloe/assert.h"
 
+#ifndef MAX
+#define MAX(x, y) ((x < y) ? y : x)
+#endif
 
 file_list_t file_list_init(){
     file_t* data = calloc(sizeof(file_t), MAX_FILES_ALLOWED);
@@ -76,10 +79,9 @@ int file_list_try_close_file(file_list_t* file_list){
 void file_list_force_close_file(file_list_t* file_list){
     close_file(file_list->active_file);
     if(file_list->active_file == &file_list->open_files[file_list->open_file_n-1]){
-        file_list->open_file_n--;
-        file_list->active_file_pointer--;
-        // TODO Check if it was the only file opened
-        file_list->active_file = &file_list->open_files[file_list->active_file_pointer];
+        file_list->open_file_n = MAX(file_list->open_file_n -1, 0) ;
+        file_list->active_file_pointer = MAX(file_list->active_file_pointer -1, 0);
+        file_list->active_file = (file_list->open_file_n == 0 )? NULL : &file_list->open_files[file_list->active_file_pointer];
     }
     else{
         /* Pointer arithmetic <3 */

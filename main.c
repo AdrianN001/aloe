@@ -113,11 +113,19 @@ int main(int argc, char** argv){
                     start_command_line(&command_list, base_window, &file_list, &workspace);
                     break;
                 }
-                case FILE_SEARCH_MODE_KEY:{
-                    if(type_of_path == VALID_DIRECTORY){
-                        start_file_search_window_popup(&workspace, &file_list);
-                        update_file_editor_window(file_editor_window,&file_list, (int)NULL);
+                default:{
+                    /* Execute shortcuts */
+                    for(int i = 0; i < command_list.n_of_commands; i++){
+                        if(input == command_list.commands[i].shortcut){
+                            command_callback_t callback = command_list.commands[i].callback;
+                            callback(base_window, &file_list, &workspace);
+
+                            update_file_editor_window(&file_editor_window, &file_list, (int)NULL);
+
+                            break;
+                        }
                     }
+                    break;
                 }
             }
         }
