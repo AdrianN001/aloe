@@ -10,6 +10,7 @@
 #include "aloe/graphic.h"
 #include "aloe/assert.h"
 #include "aloe/commander.h"
+#include "aloe/terminal.h"
 
 static volatile int keep_running = 1;
 
@@ -30,6 +31,10 @@ int main(int argc, char** argv){
     if(argc == 1){
         base_window = setup_base_window();
         buffer_t file_name_buffer = show_new_file_save_window(LINES/2,  COLS/2);
+        if (file_name_buffer.pointer == -1){
+            buffer_free(&file_name_buffer);
+            goto CLEANING;
+        }
         char* file_name = file_name_buffer.data;
 
         file_created = create_new_file(file_name);
@@ -44,6 +49,7 @@ int main(int argc, char** argv){
     }
 
     command_list_t command_list = init_commands();
+    initilize_terminal_command_list();
 
     signal(SIGINT, interruptHandler);
 
@@ -63,15 +69,13 @@ int main(int argc, char** argv){
 
     base_window = base_window == NULL ? setup_base_window(): base_window;
     WINDOW* workspace_window = start_workspace_window(base_window, type_of_path == VALID_DIRECTORY ? &workspace : NULL);
-
-
-
-
     WINDOW* mode_window = start_mode_window(base_window);
     WINDOW* file_info_window = start_file_info_window(base_window, file_list.active_file);
     WINDOW* file_editor_window = start_file_editor_window(base_window);
     WINDOW* termninal_window = start_terminal_window(base_window);
     WINDOW* time_window = start_time_window(base_window);
+
+    buffer_t terminal_buffer = buffer_init();
     
     update_file_editor_window(file_editor_window, &file_list, (int)NULL);
 
@@ -119,9 +123,7 @@ int main(int argc, char** argv){
                         if(input == command_list.commands[i].shortcut){
                             command_callback_t callback = command_list.commands[i].callback;
                             callback(base_window, &file_list, &workspace);
-
-                            update_file_editor_window(&file_editor_window, &file_list, (int)NULL);
-
+                            update_file_editor_window(file_editor_window, &file_list, (int)NULL);
                             break;
                         }
                     }
@@ -150,6 +152,7 @@ int main(int argc, char** argv){
                 break;
             }
             case TERMINAL_MODE:{
+                update_terminal_window(termninal_window, input, &terminal_buffer, base_window, &file_list, &workspace);
                 break;
             }
             case WORKSPACE_MODE:{
@@ -165,12 +168,14 @@ int main(int argc, char** argv){
 SLEEP:
         usleep(9 * 10e2);
     }
+CLEANING:
 
     werase(base_window);
     wrefresh(base_window);
     delwin(base_window);
     endwin();
     free_command_list(&command_list);
+    deinitalize_terminal_command_list();
 
     file_list_close_all(&file_list);
     file_list_free(&file_list);

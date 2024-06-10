@@ -1,7 +1,8 @@
 CC          := clang
-CFLAGS      := 
 PROJECT_DIR := $(shell pwd)
-CFLAGS      += -I$(PROJECT_DIR) -Wall 
+CFLAGS      := -I$(PROJECT_DIR)
+CFLAGS      +=  -Wall -Wno-unused-command-line-argument -Wno-void-pointer-to-int-cast 
+#CFLAGS 		+= -Werror
 
 LDLIBS      := -lncursesw -lm
 

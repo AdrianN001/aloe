@@ -42,7 +42,7 @@ file_info_t get_file_metadata(file_t* file){
     assert_with_log_s(res == 0, "could't fetch the metadata of a file");
 
     long long bytes_size = file_stat.st_size;
-    char size_buffer[10] = {0};
+    char* size_buffer = malloc(sizeof(char) * 20);
     format_file_size(bytes_size, size_buffer);
 
     char* last_time_accessed = ctime(&file_stat.st_atime);
@@ -112,4 +112,10 @@ char* match_file_extension_with_file_type(char* file_name){
     return "Unknown file type";
 }
 
+void free_file_metadata(file_info_t* file_info){
+    free(file_info->file_size);
+}
+
 #undef add_matching
+
+

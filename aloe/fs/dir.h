@@ -32,5 +32,7 @@ dir_t create_directory_object(const char* path, int max_depth);
 void  free_directory_object(dir_t* dir_obj);
 
 
+int make_new_directory(char* path);
+
 
 #endif

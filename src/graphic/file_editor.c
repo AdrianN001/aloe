@@ -43,7 +43,6 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
     complex_buffer_t* buffer = &(active_file->buffer);
     werase(window);
     box(window, 0, 0);
-
     const int row_rendering_offset = 2;
     const int collumn_rendering_offset = 5;
     const int max_rendered_line = (int)(LINES*0.863);
@@ -315,7 +314,11 @@ WRITING:
             case KEY_ENTER:{
                 goto CLEANING;
             }
-            case 127:{
+            case KEY_ESCAPE:{
+                input_buffer.pointer = -1;
+                goto CLEANING;
+            }
+            case 127:{ /* backspace */
                 buffer_delete_at(&input_buffer, input_buffer.pointer-1);
                 werase(popup);
                 mvwaddstr(popup, 2, 4, input_buffer.data);

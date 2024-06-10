@@ -27,6 +27,7 @@ char* format_file_size(long long bytes, char* out);
 char* get_owner(struct stat* info);
 
 file_info_t get_file_metadata(file_t* file);
+void free_file_metadata(file_info_t* file_info);
 
 
 

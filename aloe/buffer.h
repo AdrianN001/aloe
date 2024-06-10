@@ -4,6 +4,7 @@
 
 #include "aloe/buffer/simple_buffer.h"
 #include "aloe/buffer/complex_buffer.h"
+#include "aloe/buffer/generic_buffer.h"
 
 
 #endif

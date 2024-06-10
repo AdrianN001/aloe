@@ -65,6 +65,7 @@ file_t open_file(char* path){
 
 }
 
+/* fp is null if error occured */
 file_t create_new_file(char* file_name){
     const int max_lines = 100;
     FILE *fp = fopen(file_name, "w");
@@ -81,7 +82,7 @@ file_t create_new_file(char* file_name){
     strncpy(path_copy, file_name, len_of_path);
     path_copy[len_of_path] = '\0';
 
-        return (file_t){
+    return (file_t){
         .buffer = lines_buffer,
         .dirty = false,
         .file_name = get_filename_by_path(path_copy),

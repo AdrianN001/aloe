@@ -2,6 +2,7 @@
 #include <string.h>
 #include "aloe/graphic.h"
 #include "aloe/assert.h"
+#include "aloe/terminal.h"
 
 
 WINDOW* start_terminal_window(WINDOW* base){
@@ -23,10 +24,49 @@ WINDOW* start_terminal_window(WINDOW* base){
     nodelay(terminal_window, true); // Causes getch to be non-blocking
 
     mvwaddstr(terminal_window, 0, 1, "|Terminal|");
-    const char* debug_text = "Still in development.";
-    mvwaddstr(terminal_window, height/2, width/2 - strlen(debug_text)/2, debug_text);
+    mvwaddch(terminal_window, height/2, 2, '>');
     wrefresh(terminal_window);
 
     refresh();
     return terminal_window;
+}
+
+
+void update_terminal_window(WINDOW* window, int character, buffer_t* buffer, WINDOW* base_window, file_list_t* file_list, dir_t* workspace ){
+    const int height =  (int)(LINES*0.1);
+
+    for(int i = 0; i < 128; i++){
+        mvwaddch(window, height/2, i+3, ' ');
+    }
+    wrefresh(window);
+
+
+    switch((char)character){
+
+        case KEY_ARROW_UP:
+        case KEY_ARROW_DOWN:
+        case KEY_ARROW_LEFT:
+        case KEY_ARROW_RIGHT:
+        case KEY_TAB:
+
+        case KEY_ENTER:{
+           int run_successfully = try_to_execute_terminal_command(&terminal_command_list, buffer->data, base_window, file_list, workspace);
+           if(run_successfully){
+                buffer_clear(buffer);
+           }
+           break;
+        }
+        case KEY_BACKSPACE:{
+            buffer_delete_at(buffer, buffer->pointer-1);
+            break;
+        }
+        
+        default:{
+            buffer_write_at(buffer, character, buffer->pointer);
+            break;
+        }
+    }
+    mvwaddstr(window, height/2, 3, buffer->data);
+    wrefresh(window);
+
 }

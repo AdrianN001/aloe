@@ -75,3 +75,8 @@ void buffer_delete_at(buffer_t* buffer, int position){
     buffer->data[buffer->pointer--] = '\0';
 
 }
+
+void buffer_clear(buffer_t* buffer){
+    memset(buffer->data, 0, buffer->pointer);
+    buffer->pointer = 0;
+}

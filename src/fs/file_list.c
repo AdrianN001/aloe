@@ -55,6 +55,7 @@ file_t* file_list_append_premade(file_list_t* file_list, file_t file){
 }
 
 void file_list_increment_active_pointer(file_list_t* file_list){
+
     file_list->active_file_pointer = (file_list->active_file_pointer + 1) % file_list->open_file_n;
     file_list->active_file = &file_list->open_files[file_list->active_file_pointer];
 }
