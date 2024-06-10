@@ -14,9 +14,7 @@ static const int number_of_commands = 10;
 
 void initilize_terminal_command_list(void){
     terminal_command_list = generic_buffer_init(sizeof(terminal_command_t), number_of_commands);
-
     load_terminal_commands(&terminal_command_list);
-    terminal_command_t* x = (terminal_command_t*)(&(terminal_command_list.data[0]));
 }
 
 
