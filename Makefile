@@ -3,6 +3,7 @@ PROJECT_DIR := $(shell pwd)
 CFLAGS      := -I$(PROJECT_DIR)
 CFLAGS      +=  -Wall -Wno-unused-command-line-argument -Wno-void-pointer-to-int-cast 
 #CFLAGS 		+= -Werror
+# CFLAGS 		+= -O3
 
 LDLIBS      := -lncursesw -lm
 

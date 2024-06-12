@@ -49,7 +49,7 @@ int try_to_execute_terminal_command( terminal_command_list_t* term_cmd_list, cha
 
 
 void deinitalize_terminal_command_list(void){
-    free(terminal_command_list.data);
+    generic_buffer_free(&terminal_command_list);
 }
 
 #undef ADD_NEW_TERMINAL_COMMAND

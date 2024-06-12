@@ -1,10 +1,12 @@
-#include "aloe/fs.h"
-#include "aloe/assert.h"
-#include "aloe/buffer.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include "aloe/fs.h"
+#include "aloe/assert.h"
+#include "aloe/buffer.h"
+#include "aloe/file_monitor.h"
 
 char* get_filename_by_path(char* path){
     int last_slash_character = 0;
@@ -51,6 +53,9 @@ file_t open_file(char* path){
     char* path_copy = malloc(sizeof(char) * len_of_path+1);
     strncpy(path_copy, path, len_of_path);
     path_copy[len_of_path] = '\0';
+
+    file_monitor_instance_t file_monitor = create_file_monitor_instance(path_copy, FILE_INOTIFY_FLAGS);
+
     
     return (file_t){
         .buffer = lines_buffer,
@@ -60,12 +65,13 @@ file_t open_file(char* path){
         .fp = fp,
         .row_pointer = 0,
         .row_offset = 0,
-        .collumn_pointer = 0
+        .collumn_pointer = 0,
+        .collumn_offset = 0,
+        .file_monitor = file_monitor
     };
 
 }
 
-/* fp is null if error occured */
 file_t create_new_file(char* file_name){
     const int max_lines = 100;
     FILE *fp = fopen(file_name, "w");
@@ -82,6 +88,9 @@ file_t create_new_file(char* file_name){
     strncpy(path_copy, file_name, len_of_path);
     path_copy[len_of_path] = '\0';
 
+    file_monitor_instance_t file_monitor = create_file_monitor_instance(path_copy, FILE_INOTIFY_FLAGS);
+
+
     return (file_t){
         .buffer = lines_buffer,
         .dirty = false,
@@ -90,11 +99,13 @@ file_t create_new_file(char* file_name){
         .fp = fp,
         .row_pointer = 0,
         .row_offset = 0,
-        .collumn_pointer = 0
+        .collumn_pointer = 0,
+        .collumn_offset = 0,
+        .file_monitor = file_monitor
     };
-
-
 }
+
+
 
 int write_to_file(file_t* file, char character){
 
@@ -175,6 +186,7 @@ int close_file(file_t* file){
     free(file->absolute_file_name);
     complex_buffer_free(&(file->buffer));
     fclose(file->fp);
+    free_file_monitor_instance(&file->file_monitor);
     return 0;
 }
 

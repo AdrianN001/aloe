@@ -40,12 +40,18 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
         render_blank_screen(window);
         return;
     }
-    complex_buffer_t* buffer = &(active_file->buffer);
+
     werase(window);
-    box(window, 0, 0);
+    box(window, 1,0);
+
+    complex_buffer_t* buffer = &(active_file->buffer);
+    const int height = (int)(LINES*0.92);
+    const int width  = (int)(COLS*0.805);
     const int row_rendering_offset = 2;
     const int collumn_rendering_offset = 5;
+
     const int max_rendered_line = (int)(LINES*0.863);
+    const int max_char_in_a_line = width -10;
 
     
     switch(character){
@@ -55,41 +61,47 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
         case KEY_ARROW_UP :{
             if(active_file->row_pointer != 0) {
                 active_file->row_pointer-- ;
-                if (active_file->row_pointer >= max_rendered_line){
-                    active_file->row_offset = active_file->row_pointer - max_rendered_line + 5;
-                }else if(active_file->row_pointer <= max_rendered_line){
-                    active_file->row_offset = 0;
+                if (active_file->row_pointer == active_file->row_offset && active_file->row_offset != 0){
+                    active_file->row_offset--;
                 }
             } 
             active_file->collumn_pointer = (active_file->collumn_pointer > active_file->buffer.data[active_file->row_pointer].pointer) ? active_file->buffer.data[active_file->row_pointer].pointer : active_file->collumn_pointer ;  
+            wrefresh(window);
             break;
+
         }
         case KEY_ARROW_DOWN:{
             if (active_file->buffer.pointer-1 != active_file->row_pointer){
                 active_file->row_pointer++;
-                if (active_file->row_pointer >= max_rendered_line){
-                    active_file->row_offset = active_file->row_pointer - max_rendered_line + 5;
+                if (active_file->row_pointer == active_file->row_offset+ max_rendered_line && active_file->row_offset != active_file->buffer.pointer){
+                    active_file->row_offset++;
                 }
             }
             active_file->collumn_pointer = (active_file->collumn_pointer > active_file->buffer.data[active_file->row_pointer].pointer) ? active_file->buffer.data[active_file->row_pointer].pointer : active_file->collumn_pointer ;  
+            wrefresh(window);
+
+           
             break;
         }
         case KEY_ARROW_LEFT:{
             if (active_file->collumn_pointer == 0){
-                active_file->row_pointer--;
-                active_file->collumn_pointer = active_file->buffer.data[active_file->row_pointer].pointer;
-            }else{
-                active_file->collumn_pointer--;
+                active_file->collumn_offset = 0;
+                return update_file_editor_window(window, file_list, (char)KEY_UP);
+            }else if ( active_file->collumn_pointer == active_file->collumn_offset && active_file->collumn_offset != 0){
+                active_file->collumn_offset--;
             }
+            active_file->collumn_pointer--;
+
             break;
         }
         case KEY_ARROW_RIGHT:{
             if (active_file->collumn_pointer == active_file->buffer.data[active_file->row_pointer].pointer){
-                active_file->row_pointer++;
-                active_file->collumn_pointer = 0;
-            }else{
-                active_file->collumn_pointer++;
+                active_file->collumn_offset = 0;
+                return update_file_editor_window(window, file_list, (char)KEY_DOWN);
+            }else if ( active_file->collumn_pointer == active_file->collumn_offset + max_char_in_a_line-1 && active_file->collumn_offset != active_file->buffer.data[active_file->row_pointer].pointer){
+                active_file->collumn_offset++;
             }
+            active_file->collumn_pointer++;
             break;
         }
         case KEY_ENTER:{
@@ -148,22 +160,10 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
             break;
         }
     }   
+    /* Draw the list of the files */
+    render_file_list(file_list, window);
 
-    for (int i = 0; i < file_list->open_file_n; i++){
-        if (file_list->active_file == &file_list->open_files[i]){
-            if(file_list->open_files[i].dirty){
-                mvwprintw(window, 0, 20+i*30, "|*%s*|", file_list->open_files[i].file_name);
-            }else{
-                mvwprintw(window, 0, 20+i*30, "|%s|", file_list->open_files[i].file_name);
-            }
-        }else{
-            if(file_list->open_files[i].dirty){
-                mvwprintw(window, 0, 20+i*30, "*%s*", file_list->open_files[i].file_name);
-            }else{
-                mvwprintw(window, 0, 20+i*30, "%s", file_list->open_files[i].file_name);
-            }
-        }
-    }
+
 
     bool cursor_added = false;
     for (int row = 0; row < buffer->pointer && row < max_rendered_line; row++){
@@ -171,12 +171,19 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
 
         mvwprintw(window, row+row_rendering_offset, 0, "|%02d|", row+active_file->row_offset+1);
 
-        for (int collumn = 0; collumn < current_row->pointer; collumn++){
-            char character = current_row->data[collumn]; 
-            if (row == active_file->row_pointer-active_file->row_offset && collumn == active_file->collumn_pointer){
+        for (int collumn = 0; collumn < current_row->pointer && collumn < max_char_in_a_line && (collumn + active_file->collumn_offset) < current_row->pointer; collumn++){
+            char character = current_row->data[collumn + active_file->collumn_offset]; 
+
+            if (row == active_file->row_pointer-active_file->row_offset && collumn == active_file->collumn_pointer-active_file->collumn_offset){
                 cursor_added = true;
 
-                mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character | A_REVERSE);
+                /* Blank lines have a trailing endl character, which is invisible when rendered */
+                if( character == '\n' || character == '\t') {
+                    mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, '_' | A_REVERSE);
+                }else{
+                    mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character | A_REVERSE);
+                }
+
                 
                 continue;
             }
@@ -186,7 +193,7 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
     }
 
     /* Cursor position */
-    mvwprintw(window, 52, 30, "|Ln %d, Col %d|", active_file->row_pointer+1, active_file->collumn_pointer+1);
+    mvwprintw(window, height-1, width-20, "|Ln %d, Col %d|", active_file->row_pointer+1, active_file->collumn_pointer+1);
 
     // /* Cursor */
     if (!cursor_added)
@@ -197,7 +204,28 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
 
 }
 
-void show_saved_popup_window(int start_x, int start_y){
+void render_file_list(file_list_t *file_list, WINDOW *window){
+    for (int i = 0; i < file_list->open_file_n; i++){
+        if (file_list->active_file == &file_list->open_files[i]){
+            if (file_list->open_files[i].dirty){
+                mvwprintw(window, 0, 20 + i * 30, "|*%s*|", file_list->open_files[i].file_name);
+            }
+            else{
+                mvwprintw(window, 0, 20 + i * 30, "|%s|", file_list->open_files[i].file_name);
+            }
+        }
+        else{
+            if (file_list->open_files[i].dirty){
+                mvwprintw(window, 0, 20 + i * 30, "*%s*", file_list->open_files[i].file_name);
+            }
+            else{
+                mvwprintw(window, 0, 20 + i * 30, "%s", file_list->open_files[i].file_name);
+            }
+        }
+    }
+}
+void show_saved_popup_window(int start_x, int start_y)
+{
     char* message = "The file was sucessfully saved";
     int height = 3;
     int width = 5 + (strlen(message) / sizeof(char));
@@ -226,8 +254,6 @@ void show_saved_popup_window(int start_x, int start_y){
     wrefresh(popup);
     delwin(popup);
 }
-
-
 
 int show_close_popup_window(int start_x, int start_y){
     char* message = "The file of yours is dirty. Would you like to save it? ";
@@ -345,7 +371,11 @@ CLEANING:
 
 
 void render_blank_screen(WINDOW* window){
+    const int height = (int)(LINES*0.92);
     const int width  = (int)(COLS*0.805);
+
+    const char github_message[] = "Aloe";
+    mvwaddstr(window, height-2, width - sizeof(github_message), github_message);
 
 
     char* icon[] = {

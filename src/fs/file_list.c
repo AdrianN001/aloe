@@ -1,8 +1,12 @@
 
-#include "aloe/fs.h"
 #include <string.h>
+#include <errno.h>
 #include <stdlib.h>
+
+#include "aloe/file_monitor.h"
 #include "aloe/assert.h"
+#include "aloe/fs.h"
+
 
 #ifndef MAX
 #define MAX(x, y) ((x < y) ? y : x)
@@ -105,4 +109,62 @@ void file_list_close_all(file_list_t* file_list){
     for (int i = 0; i < file_list->open_file_n;i++){
         close_file(&file_list->open_files[i]);
     }
+}
+
+
+void file_list_handle_file_events(file_list_t* file_list){
+    char buffer[EVENT_BUFFER_LENGTH] = {0};
+    int read_length = read(inotify_file_descriptor, buffer, EVENT_BUFFER_LENGTH);
+
+    if (read_length < 0 && errno == EAGAIN){
+        return ;
+    }else if (read_length < 0){
+        assert(0);
+    }
+
+    int index = 0;
+
+    while (index < read_length){
+        struct inotify_event* event = (struct inotify_event* )&buffer[index];
+        
+        file_t* file_event_source = get_file_from_watch_descriptor(file_list, event->wd);
+        // TODO Implement a way to react to file changes
+
+        if(event->mask & IN_MOVE_SELF){
+            assert_with_log_s(0, file_event_source->file_name);
+        }
+
+        index += sizeof(struct inotify_event) + event->len;
+
+        // switch(instance->flags){
+            // case FILE_INOTIFY_FLAGS:{
+
+        //         if (event->mask & IN_MODIwFY){
+        //             return IN_MODIFY;
+        //         } else if (event->mask & IN_DELETE_SELF){
+        //             return IN_DELETE_SELF;
+        //         }
+        //         break;
+        //     }
+        //     case DIR_INOTIFY_FLAGS:{
+                
+        //         if (event->mask & IN_CREATE){
+        //             return IN_CREATE;
+        //         }else if(event->mask & IN_DELETE){
+        //             return IN_DELETE;
+        //         }
+        //         break;
+        //     }
+        // }
+    }
+    return ;
+}
+
+file_t* get_file_from_watch_descriptor(file_list_t* file_list, int watch_d){
+    for (int i = 0; i < file_list->open_file_n;i++){
+        if (file_list->open_files[i].file_monitor.watch_descriptor == watch_d){
+            return &file_list->open_files[i];
+        }
+    }
+    return NULL;
 }

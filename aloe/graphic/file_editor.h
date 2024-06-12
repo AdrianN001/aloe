@@ -64,12 +64,14 @@ void render_blank_screen(WINDOW* window);
 
 
 // Search for a new line downwards to move the view to
-void update_file_editor_window(WINDOW* window, file_list_t* file_list, int character);
+void update_file_editor_window(WINDOW *window, file_list_t *file_list, int character);
+
+
+void render_file_list(file_list_t *file_list, WINDOW *window);
 
 void show_saved_popup_window(int start_x, int start_y);
 int show_close_popup_window(int start_x, int start_y);
 
 buffer_t show_new_file_save_window(int start_x, int start_y);
 
-
-#endif 
+#endif

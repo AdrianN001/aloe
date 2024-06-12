@@ -29,6 +29,8 @@ file_t* file_list_append(file_list_t* file_list, char* path);
 
 file_t* file_list_append_premade(file_list_t* file_list, file_t file);
 
+void file_list_handle_file_events(file_list_t* file_list);
+file_t* get_file_from_watch_descriptor(file_list_t* file_list, int watch_d);
 
 void file_list_increment_active_pointer(file_list_t* file_list);
 void file_list_decrement_active_pointer(file_list_t* file_list);

@@ -24,7 +24,7 @@ int main(int argc, char** argv){
 
     WINDOW* base_window = NULL;
     file_t file_created;
-    int type_of_path;
+    int type_of_path = -1;
     char* path;
 
 
@@ -50,6 +50,10 @@ int main(int argc, char** argv){
 
     command_list_t command_list = init_commands();
     initilize_terminal_command_list();
+
+    initilialize_inotify_instance();
+    setup_non_blocking_mode(inotify_file_descriptor);
+
 
     signal(SIGINT, interruptHandler);
 
@@ -81,6 +85,12 @@ int main(int argc, char** argv){
 
     for(;keep_running;){
         int input = wgetch(file_editor_window);
+        
+        /* No update needed if there is no input */
+        if (input == ERR){
+            update_time_window(time_window);
+            goto SLEEP;
+        }
         
         /* If there is an input and the mode is "base_mode", than handle it  */
         if (current_mode == BASE_MODE){
@@ -139,11 +149,6 @@ int main(int argc, char** argv){
             goto SLEEP;
         }
 
-        /* No update needed if there is no input */
-        if (input == ERR){
-            update_time_window(time_window);
-            goto SLEEP;
-        }
 
         switch(current_mode){
             case TEXT_EDITOR_MODE:{
@@ -164,8 +169,9 @@ int main(int argc, char** argv){
         }
 
         
-
+//  asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
 SLEEP:
+        file_list_handle_file_events(&file_list);
         usleep(9 * 10e2);
     }
 CLEANING:
@@ -176,6 +182,7 @@ CLEANING:
     endwin();
     free_command_list(&command_list);
     deinitalize_terminal_command_list();
+    deinitilialize_inotify_instance();
 
     file_list_close_all(&file_list);
     file_list_free(&file_list);
@@ -205,6 +212,6 @@ bool handle_mode_state_change_in_base_mode(int input_character, int* current_sta
     return false;
 }
 
-void interruptHandler(int){
+void interruptHandler(int _x){
     keep_running = 0;
 }
