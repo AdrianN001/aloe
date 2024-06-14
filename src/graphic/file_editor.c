@@ -370,6 +370,9 @@ CLEANING:
 
 
 void render_blank_screen(WINDOW* window){
+
+    werase(window);
+    box(window, 1,0);
     const int height = (int)(LINES*0.92);
     const int width  = (int)(COLS*0.805);
 

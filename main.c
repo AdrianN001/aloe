@@ -170,7 +170,8 @@ int main(int argc, char** argv){
 
         
 SLEEP:
-        file_list_handle_file_events(&file_list);
+
+        file_list_handle_file_events(&file_list, &workspace);
         usleep(9 * 10e2);
     }
 CLEANING:

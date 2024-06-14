@@ -1,6 +1,7 @@
 #ifndef __DIR_H_
 #define __DIR_H_
 
+#include "aloe/file_monitor.h"
 #include <dirent.h>
 #include <sys/stat.h>
 
@@ -26,6 +27,8 @@ typedef struct directory{
     int n_files;
 
     int pointer;
+
+    file_monitor_instance_t directory_monitor;
 } dir_t;
 
 dir_t create_directory_object(const char* path, int max_depth);

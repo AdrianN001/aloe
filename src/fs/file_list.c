@@ -113,7 +113,7 @@ void file_list_close_all(file_list_t* file_list){
 }
 
 
-void file_list_handle_file_events(file_list_t* file_list){
+void file_list_handle_file_events(file_list_t* file_list, dir_t* workspace){
     char buffer[EVENT_BUFFER_LENGTH] = {0};
     int read_length = read(inotify_file_descriptor, buffer, EVENT_BUFFER_LENGTH);
 
@@ -131,11 +131,24 @@ void file_list_handle_file_events(file_list_t* file_list){
         file_t* file_event_source = get_file_from_watch_descriptor(file_list, event->wd);
         // TODO Implement a way to react to file changes
 
-        if(event->mask & IN_MODIFY){
-            refresh_file_buffer(file_event_source);
-        }else if (event->mask & IN_MOVE_SELF){
-            file_list_remove_file(file_list, file_event_source);
+        /* The event source was a file */
+        if(file_event_source != NULL){
+            if(event->mask & IN_MODIFY){
+                refresh_file_buffer(file_event_source);
+            }else if (event->mask & IN_MOVE_SELF){
+                file_list_remove_file(file_list, file_event_source);
+            }
+        }else{ 
+            /* The event source was a directory */
+
+            if(event->mask & IN_CREATE || event->mask & IN_DELETE ){
+                dir_t refreshed_dir = create_directory_object(workspace->dir_path, 3);
+                free_directory_object(workspace);
+                *workspace = refreshed_dir;
+            }
+
         }
+
 
         index += sizeof(struct inotify_event) + event->len;
 

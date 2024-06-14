@@ -23,9 +23,10 @@ void load_terminal_commands(terminal_command_list_t* term_cmd_list){
     ADD_NEW_TERMINAL_COMMAND("nd", new_dir_terminal_callback);
 }
 
-int try_to_execute_terminal_command( terminal_command_list_t* term_cmd_list, char* input, WINDOW* main_window, file_list_t* file_list, dir_t* workspace){
+terminal_command_result_t try_to_execute_terminal_command( terminal_command_list_t* term_cmd_list, char* input, WINDOW* main_window, file_list_t* file_list, dir_t* workspace){
     char command_name[16] = {0};
     char args[64] = {0};
+    terminal_command_result_t result;
 
     sscanf(input, "%[a-z] %[a-zA-Z0-9.-?~!+:_# ]", command_name, args);
 
@@ -40,11 +41,11 @@ int try_to_execute_terminal_command( terminal_command_list_t* term_cmd_list, cha
         }
     }
     if(callback == NULL){
-        return 0;
+        return (terminal_command_result_t){.exit_code = -1};
     }
 
-    callback(args, main_window, file_list, workspace);
-    return 1;
+    callback(args, main_window, file_list, workspace, &result);
+    return result;
 }
 
 

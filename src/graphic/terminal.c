@@ -34,6 +34,7 @@ WINDOW* start_terminal_window(WINDOW* base){
 
 void update_terminal_window(WINDOW* window, int character, buffer_t* buffer, WINDOW* base_window, file_list_t* file_list, dir_t* workspace ){
     const int height =  (int)(LINES*0.1);
+    const int width  =  (int)(COLS*0.593);
 
     for(int i = 0; i < 128; i++){
         mvwaddch(window, height/2, i+3, ' ');
@@ -50,11 +51,15 @@ void update_terminal_window(WINDOW* window, int character, buffer_t* buffer, WIN
         case KEY_TAB:
 
         case KEY_ENTER:{
-           int run_successfully = try_to_execute_terminal_command(&terminal_command_list, buffer->data, base_window, file_list, workspace);
-           if(run_successfully){
+            terminal_command_result_t result = try_to_execute_terminal_command(&terminal_command_list, buffer->data, base_window, file_list, workspace);
+            if(result.exit_code == 0){
                 buffer_clear(buffer);
-           }
-           break;
+            }
+            mvwaddstr(window, height/ 2, width/2 -strlen(result.exit_message)/2, result.exit_message );
+            wrefresh(window);
+
+            free_terminal_command_result(&result);
+            break;
         }
         case KEY_BACKSPACE:{
             buffer_delete_at(buffer, buffer->pointer-1);
