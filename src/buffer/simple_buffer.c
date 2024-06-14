@@ -34,7 +34,7 @@ void buffer_resize(buffer_t* buffer, size_t new_buffer_size){
         return;
     }
     buffer->data = realloc(buffer->data, new_buffer_size * sizeof(char));
-    assert_with_log_s(buffer->data != NULL, "Reallocation failed");
+    assertf(buffer->data != NULL, "Reallocation failed")
     // buffer->max_size = new_buffer_size;
 }
 

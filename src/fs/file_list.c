@@ -131,7 +131,7 @@ void file_list_handle_file_events(file_list_t* file_list){
         // TODO Implement a way to react to file changes
 
         if(event->mask & IN_MOVE_SELF){
-            assert_with_log_s(0, file_event_source->file_name);
+            assertf(0, "%s", file_event_source->file_name);
         }
 
         index += sizeof(struct inotify_event) + event->len;

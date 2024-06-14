@@ -39,7 +39,7 @@ file_info_t get_file_metadata(file_t* file){
     struct stat file_stat;
 
     int res = fstat(fileno(fp),&file_stat);
-    assert_with_log_s(res == 0, "could't fetch the metadata of a file");
+    assertf(res == 0, "could't fetch the metadata of a file")
 
     long long bytes_size = file_stat.st_size;
     char* size_buffer = malloc(sizeof(char) * 20);

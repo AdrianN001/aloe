@@ -96,7 +96,7 @@ void complex_buffer_resize(complex_buffer_t* buffer, size_t new_size){
 
     buffer->data  = (buffer_t*)realloc(buffer->data, new_size*sizeof(buffer_t));
 
-    assert_with_log_s(buffer->data != NULL, "Reallocation failed");
+    assertf(buffer->data != NULL, "Reallocation failed");
 }
 
 void complex_buffer_free(complex_buffer_t* buffer){
