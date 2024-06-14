@@ -172,22 +172,22 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
         mvwprintw(window, row+row_rendering_offset, 0, "|%02d|", row+active_file->row_offset+1);
 
         for (int collumn = 0; collumn < current_row->pointer && collumn < max_char_in_a_line && (collumn + active_file->collumn_offset) < current_row->pointer; collumn++){
-            char character = current_row->data[collumn + active_file->collumn_offset]; 
+            char rendered_character = current_row->data[collumn + active_file->collumn_offset]; 
 
             if (row == active_file->row_pointer-active_file->row_offset && collumn == active_file->collumn_pointer-active_file->collumn_offset){
                 cursor_added = true;
 
-                /* Blank lines have a trailing endl character, which is invisible when rendered */
-                if( character == '\n' || character == '\t') {
+                /* Blank lines have a trailing endl rendered_character, which is invisible when rendered */
+                if( rendered_character == '\n' || rendered_character == '\t') {
                     mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, '_' | A_REVERSE);
                 }else{
-                    mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character | A_REVERSE);
+                    mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, rendered_character | A_REVERSE);
                 }
 
                 
                 continue;
             }
-            mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character);
+            mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, rendered_character);
             wrefresh(window);
         }        
     }
@@ -349,7 +349,6 @@ WRITING:
                 werase(popup);
                 mvwaddstr(popup, 2, 4, input_buffer.data);
                 goto WRITING;
-                break;
             }
             default:{
                 buffer_write_at(&input_buffer, ch, input_buffer.pointer);

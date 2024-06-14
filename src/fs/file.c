@@ -216,5 +216,6 @@ int refresh_file_buffer(file_t* file){
     }
 
     file->buffer = lines_buffer;
+    return 0;
 
 }
