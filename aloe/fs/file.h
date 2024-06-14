@@ -29,8 +29,9 @@ int write_to_file(file_t* file, char character);
 int delete_from_file(file_t* file);
 int insert_new_line_to_file(file_t* file);
 
-int check_for_file_events(file_t* file);
 int save_file(file_t* file);
+
+int refresh_file_buffer(file_t* file);
 
 
 char* get_filename_by_path(char* path);

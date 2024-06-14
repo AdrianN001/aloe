@@ -91,7 +91,7 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
                 active_file->collumn_offset--;
             }
             active_file->collumn_pointer--;
-
+            
             break;
         }
         case KEY_ARROW_RIGHT:{

@@ -1,9 +1,9 @@
 CC          := clang
 PROJECT_DIR := $(shell pwd)
 CFLAGS      := -I$(PROJECT_DIR)
-CFLAGS      +=  -Wall -Wno-unused-command-line-argument -Wno-void-pointer-to-int-cast 
+CFLAGS      +=  -Wall -Wno-unused-command-line-argument -Wno-void-pointer-to-int-cast -Wno-backslash-newline-escape -Werror=implicit
 #CFLAGS 		+= -Werror
-# CFLAGS 		+= -O3
+#CFLAGS 		+= -O3
 
 LDLIBS      := -lncursesw -lm
 
@@ -34,5 +34,4 @@ $(MainFileObject)/%.o: $(MainFileObject)/%.c
 
 
 clean: 
-	rm -r $(ObjectFiles)
-	rm $(BinaryOutput)
+	rm -r ./*.o

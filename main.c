@@ -169,7 +169,6 @@ int main(int argc, char** argv){
         }
 
         
-//  asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd asd
 SLEEP:
         file_list_handle_file_events(&file_list);
         usleep(9 * 10e2);

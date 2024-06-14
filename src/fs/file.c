@@ -190,3 +190,31 @@ int close_file(file_t* file){
     return 0;
 }
 
+
+
+int refresh_file_buffer(file_t* file){
+    complex_buffer_free(&file->buffer);
+
+
+    char* line = NULL;
+    int chars_read;
+    size_t len = 0;
+    bool any_line_read = false;
+
+    complex_buffer_t lines_buffer = complex_buffer_init(100);
+    
+    while((chars_read = getdelim(&line, &len, '\n', file->fp)) != -1){
+        if (chars_read == 0){
+            complex_buffer_append_blank(&lines_buffer);
+        }else{
+            complex_buffer_append(&lines_buffer, line, chars_read);
+        }
+        any_line_read = true;
+    }
+    if (!any_line_read){
+        complex_buffer_append_blank(&lines_buffer);
+    }
+
+    file->buffer = lines_buffer;
+
+}

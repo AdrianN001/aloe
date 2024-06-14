@@ -1,6 +1,7 @@
 
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 #include <stdlib.h>
 
 #include "aloe/file_monitor.h"
@@ -130,8 +131,10 @@ void file_list_handle_file_events(file_list_t* file_list){
         file_t* file_event_source = get_file_from_watch_descriptor(file_list, event->wd);
         // TODO Implement a way to react to file changes
 
-        if(event->mask & IN_MOVE_SELF){
-            assertf(0, "%s", file_event_source->file_name);
+        if(event->mask & IN_MODIFY){
+            refresh_file_buffer(file_event_source);
+        }else if (event->mask & IN_MOVE_SELF){
+            file_list_remove_file(file_list, file_event_source);
         }
 
         index += sizeof(struct inotify_event) + event->len;
@@ -159,6 +162,29 @@ void file_list_handle_file_events(file_list_t* file_list){
     }
     return ;
 }
+
+
+void file_list_remove_file(file_list_t* file_list, file_t* file){
+    if (file == file_list->active_file){
+        return file_list_force_close_file(file_list);
+    }
+    int index = ((long long)file - (long long)file_list->open_files)/sizeof(file_t);
+    close_file(file);
+
+
+    if(index == file_list->open_file_n-1){
+        file_list->open_file_n = MAX(file_list->open_file_n -1, 0) ;
+    }
+    else{
+        /* Pointer arithmetic <3 */
+        for (file_t* i = file; i != &file_list->open_files[file_list->open_file_n-1] ;  ){
+            *i = *(++i);
+        }
+        file_list_increment_active_pointer(file_list);
+        file_list->open_file_n--;
+    }
+}
+
 
 file_t* get_file_from_watch_descriptor(file_list_t* file_list, int watch_d){
     for (int i = 0; i < file_list->open_file_n;i++){
