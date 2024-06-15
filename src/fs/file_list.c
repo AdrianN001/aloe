@@ -129,7 +129,6 @@ void file_list_handle_file_events(file_list_t* file_list, dir_t* workspace){
         struct inotify_event* event = (struct inotify_event* )&buffer[index];
         
         file_t* file_event_source = get_file_from_watch_descriptor(file_list, event->wd);
-        // TODO Implement a way to react to file changes
 
         /* The event source was a file */
         if(file_event_source != NULL){

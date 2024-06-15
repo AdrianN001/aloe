@@ -72,23 +72,28 @@ int main(int argc, char** argv){
     int current_mode = BASE_MODE;
 
     base_window = base_window == NULL ? setup_base_window(): base_window;
-    WINDOW* workspace_window = start_workspace_window(base_window, type_of_path == VALID_DIRECTORY ? &workspace : NULL);
     WINDOW* mode_window = start_mode_window(base_window);
-    WINDOW* file_info_window = start_file_info_window(base_window, file_list.active_file);
-    WINDOW* file_editor_window = start_file_editor_window(base_window);
-    WINDOW* termninal_window = start_terminal_window(base_window);
-    WINDOW* time_window = start_time_window(base_window);
+
+    user_interface_t ui = {
+        .file_data_window =     start_file_info_window(base_window, file_list.active_file), 
+        .terminal_window  =     start_terminal_window(base_window),
+        .text_editor_window =   start_file_editor_window(base_window),
+        .workspace_window =     start_workspace_window(base_window, type_of_path == VALID_DIRECTORY ? &workspace : NULL),
+        .time_window = start_time_window(base_window)
+    };
 
     buffer_t terminal_buffer = buffer_init();
     
-    update_file_editor_window(file_editor_window, &file_list, (int)NULL);
+    update_file_editor_window(ui.text_editor_window, &file_list, (int)NULL);
 
     for(;keep_running;){
-        int input = wgetch(file_editor_window);
+        file_list_handle_file_events(&file_list, &workspace);
+
+        int input = wgetch(ui.text_editor_window);
         
         /* No update needed if there is no input */
         if (input == ERR){
-            update_time_window(time_window);
+            update_time_window(ui.time_window);
             goto SLEEP;
         }
         
@@ -103,15 +108,15 @@ int main(int argc, char** argv){
             switch((char)input){
                 case KEY_ARROW_LEFT:{
                     file_list_decrement_active_pointer(&file_list);
-                    update_file_editor_window(file_editor_window,&file_list, (char)input);
-                    update_file_info_window(file_info_window, file_list.active_file);
+                    update_file_editor_window(ui.text_editor_window,&file_list, (char)input);
+                    update_file_info_window(ui.file_data_window, file_list.active_file);
 
                     break;
                 }
                 case KEY_ARROW_RIGHT:{
                     file_list_increment_active_pointer(&file_list);
-                    update_file_editor_window(file_editor_window,&file_list, (char)input);
-                    update_file_info_window(file_info_window, file_list.active_file);
+                    update_file_editor_window(ui.text_editor_window,&file_list, (char)input);
+                    update_file_info_window(ui.file_data_window, file_list.active_file);
 
                     break;
                 }
@@ -120,7 +125,7 @@ int main(int argc, char** argv){
                     file_list.active_file->dirty = false;
                     show_saved_popup_window(LINES /2 , COLS /2);
 
-                    update_file_editor_window(file_editor_window,&file_list, (int)NULL);
+                    update_file_editor_window(ui.text_editor_window,&file_list, (int)NULL);
                     break;
                 }
                 case CTRL('p'):{
@@ -133,7 +138,7 @@ int main(int argc, char** argv){
                         if(input == command_list.commands[i].shortcut){
                             command_callback_t callback = command_list.commands[i].callback;
                             callback(base_window, &file_list, &workspace);
-                            update_file_editor_window(file_editor_window, &file_list, (int)NULL);
+                            user_interface_update_all(&ui, &file_list, &workspace);
                             break;
                         }
                     }
@@ -152,18 +157,18 @@ int main(int argc, char** argv){
 
         switch(current_mode){
             case TEXT_EDITOR_MODE:{
-                update_file_editor_window(file_editor_window,&file_list, (char)input);
-                update_file_info_window(file_info_window, file_list.active_file);
+                update_file_editor_window(ui.text_editor_window,&file_list, (char)input);
+                update_file_info_window(ui.file_data_window, file_list.active_file);
                 break;
             }
             case TERMINAL_MODE:{
-                update_terminal_window(termninal_window, input, &terminal_buffer, base_window, &file_list, &workspace);
+                update_terminal_window(ui.terminal_window, &ui,  input, &terminal_buffer, base_window, &file_list, &workspace);
                 break;
             }
             case WORKSPACE_MODE:{
-                update_workspace_window(workspace_window, &workspace, &file_list, (char)input );
-                update_file_editor_window(file_editor_window,&file_list, (int)NULL);
-                update_file_info_window(file_info_window, file_list.active_file);
+                update_workspace_window(ui.workspace_window, &workspace, &file_list, (char)input );
+                update_file_editor_window(ui.text_editor_window,&file_list, (int)NULL);
+                update_file_info_window(ui.file_data_window, file_list.active_file);
                 break;
             }
         }
@@ -171,10 +176,11 @@ int main(int argc, char** argv){
         
 SLEEP:
 
-        file_list_handle_file_events(&file_list, &workspace);
         usleep(9 * 10e2);
     }
 CLEANING:
+
+    user_interface_free_all_windows(&ui);
 
     werase(base_window);
     wrefresh(base_window);

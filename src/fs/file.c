@@ -88,6 +88,8 @@ file_t create_new_file(char* file_name){
     strncpy(path_copy, file_name, len_of_path);
     path_copy[len_of_path] = '\0';
 
+
+    //TODO The file monitor assertion fails
     file_monitor_instance_t file_monitor = create_file_monitor_instance(path_copy, FILE_INOTIFY_FLAGS);
 
 

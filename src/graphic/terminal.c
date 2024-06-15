@@ -32,7 +32,7 @@ WINDOW* start_terminal_window(WINDOW* base){
 }
 
 
-void update_terminal_window(WINDOW* window, int character, buffer_t* buffer, WINDOW* base_window, file_list_t* file_list, dir_t* workspace ){
+void update_terminal_window(WINDOW* window, user_interface_t* ui, int character, buffer_t* buffer, WINDOW* base_window, file_list_t* file_list, dir_t* workspace ){
     const int height =  (int)(LINES*0.1);
     const int width  =  (int)(COLS*0.593);
 
@@ -54,6 +54,8 @@ void update_terminal_window(WINDOW* window, int character, buffer_t* buffer, WIN
             terminal_command_result_t result = try_to_execute_terminal_command(&terminal_command_list, buffer->data, base_window, file_list, workspace);
             if(result.exit_code == 0){
                 buffer_clear(buffer);
+                file_list_handle_file_events(file_list, workspace);
+                user_interface_update_all(ui, file_list, workspace);
             }
             mvwaddstr(window, height/ 2, width/2 -strlen(result.exit_message)/2, result.exit_message );
             wrefresh(window);
