@@ -17,7 +17,7 @@ typedef struct{
 } user_interface_t;
 
 void user_interface_update_all(user_interface_t* ui, file_list_t*, dir_t*);
-inline void user_interface_free_all_windows(user_interface_t* ui);
+void user_interface_free_all_windows(user_interface_t* ui);
 
 
 

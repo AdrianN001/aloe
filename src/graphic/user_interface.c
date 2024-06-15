@@ -20,7 +20,7 @@ void user_interface_update_all(user_interface_t* ui, file_list_t* file_list, dir
 
 }
 
-inline void user_interface_free_all_windows(user_interface_t* ui){
+ void user_interface_free_all_windows(user_interface_t* ui){
     FREE_WINDOW( ui->text_editor_window)
     FREE_WINDOW( ui->workspace_window)
     FREE_WINDOW( ui->terminal_window)
