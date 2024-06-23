@@ -4,8 +4,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/inotify.h>
-#include <locale.h>
-
 #include "aloe/fs.h"
 #include "aloe/graphic.h"
 #include "aloe/assert.h"
@@ -14,14 +12,10 @@
 
 static volatile int keep_running = 1;
 
-bool handle_mode_state_change_in_base_mode(int input_character, int* current_state);
+bool handle_mode_state_change_in_base_mode(int input_character, aloe_mode_t* current_state);
 void interruptHandler(int);
 
 int main(int argc, char** argv){
-    ESCDELAY = 0; // remove delay after pressing escape
-
-    setlocale(LC_ALL, "");
-
     WINDOW* base_window = NULL;
     file_t file_created;
     int type_of_path = -1;
@@ -54,7 +48,6 @@ int main(int argc, char** argv){
     initilialize_inotify_instance();
     setup_non_blocking_mode(inotify_file_descriptor);
 
-
     signal(SIGINT, interruptHandler);
 
 
@@ -69,22 +62,12 @@ int main(int argc, char** argv){
         file_list_append_premade(&file_list, file_created);
     }
 
-    int current_mode = BASE_MODE;
 
     base_window = base_window == NULL ? setup_base_window(): base_window;
-    WINDOW* mode_window = start_mode_window(base_window);
 
-    user_interface_t ui = {
-        .file_data_window =     start_file_info_window(base_window, file_list.active_file), 
-        .terminal_window  =     start_terminal_window(base_window),
-        .text_editor_window =   start_file_editor_window(base_window),
-        .workspace_window =     start_workspace_window(base_window, type_of_path == VALID_DIRECTORY ? &workspace : NULL),
-        .time_window = start_time_window(base_window)
-    };
-
+    user_interface_t ui =  create_user_interface(base_window, &file_list, type_of_path == VALID_FILE ? NULL : &workspace);
     buffer_t terminal_buffer = buffer_init();
     
-    update_file_editor_window(ui.text_editor_window, &file_list, (int)NULL);
 
     for(;keep_running;){
         file_list_handle_file_events(&file_list, &workspace);
@@ -98,24 +81,24 @@ int main(int argc, char** argv){
         }
         
         /* If there is an input and the mode is "base_mode", than handle it  */
-        if (current_mode == BASE_MODE){
-            bool successfully_handled = handle_mode_state_change_in_base_mode(input, &current_mode);
+        if (ui.current_mode == BASE_MODE){
+            bool successfully_handled = handle_mode_state_change_in_base_mode(input, &ui.current_mode);
             if (successfully_handled){
-                update_mode_window(mode_window, current_mode);
+                update_file_editor_window(&ui, &file_list, (int)NULL);
                 goto SLEEP;
             }
 
             switch((char)input){
                 case KEY_ARROW_LEFT:{
                     file_list_decrement_active_pointer(&file_list);
-                    update_file_editor_window(ui.text_editor_window,&file_list, (char)input);
+                    update_file_editor_window(&ui,&file_list, (char)input);
                     update_file_info_window(ui.file_data_window, file_list.active_file);
 
                     break;
                 }
                 case KEY_ARROW_RIGHT:{
                     file_list_increment_active_pointer(&file_list);
-                    update_file_editor_window(ui.text_editor_window,&file_list, (char)input);
+                    update_file_editor_window(&ui,&file_list, (char)input);
                     update_file_info_window(ui.file_data_window, file_list.active_file);
 
                     break;
@@ -125,7 +108,7 @@ int main(int argc, char** argv){
                     file_list.active_file->dirty = false;
                     show_saved_popup_window(LINES /2 , COLS /2);
 
-                    update_file_editor_window(ui.text_editor_window,&file_list, (int)NULL);
+                    update_file_editor_window(&ui,&file_list, (int)NULL);
                     break;
                 }
                 case CTRL('p'):{
@@ -149,15 +132,15 @@ int main(int argc, char** argv){
 
         /* If there is an input and the mode is not "base_mode", but it is the key to go back to base mode  */
         if ( input == BASE_MODE_KEY ){
-            update_mode_window(mode_window, BASE_MODE);
-            current_mode = BASE_MODE;
+            ui.current_mode = BASE_MODE;
+            update_file_editor_window(&ui, &file_list, (int)NULL);
             goto SLEEP;
         }
 
 
-        switch(current_mode){
+        switch(ui.current_mode){
             case TEXT_EDITOR_MODE:{
-                update_file_editor_window(ui.text_editor_window,&file_list, (char)input);
+                update_file_editor_window(&ui,&file_list, (char)input);
                 update_file_info_window(ui.file_data_window, file_list.active_file);
                 break;
             }
@@ -167,7 +150,7 @@ int main(int argc, char** argv){
             }
             case WORKSPACE_MODE:{
                 update_workspace_window(ui.workspace_window, &workspace, &file_list, (char)input );
-                update_file_editor_window(ui.text_editor_window,&file_list, (int)NULL);
+                update_file_editor_window(&ui,&file_list, (int)NULL);
                 update_file_info_window(ui.file_data_window, file_list.active_file);
                 break;
             }
@@ -204,7 +187,7 @@ CLEANING:
 
 
 
-bool handle_mode_state_change_in_base_mode(int input_character, int* current_state){
+bool handle_mode_state_change_in_base_mode(int input_character, aloe_mode_t* current_state){
     if (input_character == TEXT_EDITOR_MODE_KEY){
         *current_state = TEXT_EDITOR_MODE;
         return true;

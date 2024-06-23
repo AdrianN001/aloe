@@ -4,7 +4,8 @@
 #include <ncurses.h>
 #include "aloe/fs.h"
 #include "aloe/buffer.h"
-
+#include "user_interface.h"
+#include "mode.h"
 
 
 /* Keyboard mapping */
@@ -64,9 +65,11 @@ void render_blank_screen(WINDOW* window);
 
 
 // Search for a new line downwards to move the view to
-void update_file_editor_window(WINDOW *window, file_list_t *file_list, int character);
+void update_file_editor_window(user_interface_t *ui, file_list_t *file_list, int character);
 
+void render_file_content_to_window(WINDOW* text_editor_window,file_t *active_file, const int max_rendered_line, const int max_char_in_a_line);
 
+void render_current_mode(WINDOW *window, aloe_mode_t mode);
 void render_file_list(file_list_t *file_list, WINDOW *window);
 
 void show_saved_popup_window(int start_x, int start_y);

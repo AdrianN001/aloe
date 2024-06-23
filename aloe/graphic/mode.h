@@ -5,6 +5,8 @@
 #define CTRL(c) ((c) & 037)
 #endif
 
+typedef uint8_t aloe_mode_t;
+
 #define BASE_MODE           0
 #define TEXT_EDITOR_MODE    1
 #define TERMINAL_MODE       2

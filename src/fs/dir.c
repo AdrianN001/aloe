@@ -110,7 +110,7 @@ int make_new_directory(char* path){
 
     if(stat(path, &st) == -1){
         mkdir(path, 0700);
-        return 1;
+        return 0;
     }
     return -1;
 }

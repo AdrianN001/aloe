@@ -1,5 +1,3 @@
-
-
 #include <ncurses.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,15 +8,23 @@
 #include "aloe/assert.h"
 #include "aloe/fs.h"
 
+static int FILE_EDITOR_HEIGHT = 0;
+static int FILE_EDITOR_WIDTH = 0;
+
+
+const static int row_rendering_offset = 2;
+const static int collumn_rendering_offset = 6;
+
+
 WINDOW* start_file_editor_window(WINDOW* base_window){
     WINDOW* file_editor_window;
 
     const int x_top = 0;
     const int y_top = 0;
-    const int height = (int)(LINES*0.92);
-    const int width  = (int)(COLS*0.805);
+    FILE_EDITOR_HEIGHT = (int)(LINES*0.92);
+    FILE_EDITOR_WIDTH  = (int)(COLS*0.805);
     
-    file_editor_window = subwin(base_window, height, width, y_top, x_top);
+    file_editor_window = subwin(base_window, FILE_EDITOR_HEIGHT, FILE_EDITOR_WIDTH, y_top, x_top);
 
 
     assert(file_editor_window != NULL);
@@ -34,24 +40,15 @@ WINDOW* start_file_editor_window(WINDOW* base_window){
 }
 
 
-void update_file_editor_window(WINDOW* window, file_list_t* file_list, int character){
+void update_file_editor_window(user_interface_t* ui, file_list_t* file_list, int character){
     file_t* active_file = file_list->active_file;
     if(active_file == NULL){
-        render_blank_screen(window);
+        render_blank_screen(ui->text_editor_window);
         return;
     }
 
-    werase(window);
-    box(window, 1,0);
-
-    complex_buffer_t* buffer = &(active_file->buffer);
-    const int height = (int)(LINES*0.92);
-    const int width  = (int)(COLS*0.805);
-    const int row_rendering_offset = 2;
-    const int collumn_rendering_offset = 5;
-
     const int max_rendered_line = (int)(LINES*0.863);
-    const int max_char_in_a_line = width -10;
+    const int max_char_in_a_line = FILE_EDITOR_WIDTH -10;
 
     
     switch(character){
@@ -66,7 +63,7 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
                 }
             } 
             active_file->collumn_pointer = (active_file->collumn_pointer > active_file->buffer.data[active_file->row_pointer].pointer) ? active_file->buffer.data[active_file->row_pointer].pointer : active_file->collumn_pointer ;  
-            wrefresh(window);
+            wrefresh(ui->text_editor_window);
             break;
 
         }
@@ -78,7 +75,7 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
                 }
             }
             active_file->collumn_pointer = (active_file->collumn_pointer > active_file->buffer.data[active_file->row_pointer].pointer) ? active_file->buffer.data[active_file->row_pointer].pointer : active_file->collumn_pointer ;  
-            wrefresh(window);
+            wrefresh(ui->text_editor_window);
 
            
             break;
@@ -86,7 +83,7 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
         case KEY_ARROW_LEFT:{
             if (active_file->collumn_pointer == 0){
                 active_file->collumn_offset = 0;
-                return update_file_editor_window(window, file_list, (char)KEY_UP);
+                return update_file_editor_window(ui, file_list, (char)KEY_UP);
             }else if ( active_file->collumn_pointer == active_file->collumn_offset && active_file->collumn_offset != 0){
                 active_file->collumn_offset--;
             }
@@ -95,9 +92,9 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
             break;
         }
         case KEY_ARROW_RIGHT:{
-            if (active_file->collumn_pointer == active_file->buffer.data[active_file->row_pointer].pointer){
+            if (active_file->collumn_pointer+1 == active_file->buffer.data[active_file->row_pointer].pointer){
                 active_file->collumn_offset = 0;
-                return update_file_editor_window(window, file_list, (char)KEY_DOWN);
+                return update_file_editor_window(ui, file_list, (char)KEY_DOWN);
             }else if ( active_file->collumn_pointer == active_file->collumn_offset + max_char_in_a_line-1 && active_file->collumn_offset != active_file->buffer.data[active_file->row_pointer].pointer){
                 active_file->collumn_offset++;
             }
@@ -130,16 +127,16 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
         case CTRL('x'):{
             if( !file_list->active_file->dirty){
                 file_list_force_close_file(file_list);
-                return update_file_editor_window(window, file_list, KEY_ARROW_LEFT);
+                return update_file_editor_window(ui, file_list, KEY_ARROW_LEFT);
             }
             int result = show_close_popup_window(LINES/2, COLS/2);
             if (result == WANT_TO_SAVE){
                 file_list_save_and_close_file(file_list);
-                return update_file_editor_window(window, file_list, KEY_ARROW_LEFT);
+                return update_file_editor_window(ui, file_list, KEY_ARROW_LEFT);
 
             }else if (result == DONT_WANT_TO_SAVE){
                 file_list_force_close_file(file_list);
-                return update_file_editor_window(window, file_list, KEY_ARROW_LEFT);
+                return update_file_editor_window(ui, file_list, KEY_ARROW_LEFT);
             }else{
                 break;
             }
@@ -161,50 +158,40 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
         }
     }   
     /* Draw the list of the files */
-    render_file_list(file_list, window);
+    render_file_list(file_list, ui->text_editor_window);
+    render_current_mode(ui->text_editor_window, ui->current_mode);
 
+    render_file_content_to_window(ui->text_editor_window, active_file, max_rendered_line, max_char_in_a_line);
+    /* Add cursor */
+    char cursor_character = mvwinch(ui->text_editor_window,active_file->row_pointer+row_rendering_offset - active_file->row_offset, active_file->collumn_pointer+collumn_rendering_offset - active_file->collumn_offset );
+    mvwaddch(ui->text_editor_window, active_file->row_pointer+row_rendering_offset - active_file->row_offset, active_file->collumn_pointer+collumn_rendering_offset - active_file->collumn_offset, cursor_character|A_REVERSE);
 
-
-    bool cursor_added = false;
-    for (int row = 0; row < buffer->pointer && row < max_rendered_line; row++){
-        buffer_t* current_row = &(buffer->data[row+active_file->row_offset]);
-
-        mvwprintw(window, row+row_rendering_offset, 0, "|%02d|", row+active_file->row_offset+1);
-
-        for (int collumn = 0; collumn < current_row->pointer && collumn < max_char_in_a_line && (collumn + active_file->collumn_offset) < current_row->pointer; collumn++){
-            char rendered_character = current_row->data[collumn + active_file->collumn_offset]; 
-
-            if (row == active_file->row_pointer-active_file->row_offset && collumn == active_file->collumn_pointer-active_file->collumn_offset){
-                cursor_added = true;
-
-                /* Blank lines have a trailing endl rendered_character, which is invisible when rendered */
-                if( rendered_character == '\n' || rendered_character == '\t') {
-                    mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, '_' | A_REVERSE);
-                }else{
-                    mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, rendered_character | A_REVERSE);
-                }
-
-                
-                continue;
-            }
-            mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, rendered_character);
-            wrefresh(window);
-        }        
-    }
 
     /* Cursor position */
-    mvwprintw(window, height-1, width-20, "|Ln %d, Col %d|", active_file->row_pointer+1, active_file->collumn_pointer+1);
+    mvwprintw(ui->text_editor_window, FILE_EDITOR_HEIGHT-1, FILE_EDITOR_WIDTH-20, "|Ln %d, Col %d|", active_file->row_pointer+1, active_file->collumn_pointer+1);
 
-    // /* Cursor */
-    if (!cursor_added)
-        mvwaddch(window, active_file->row_pointer+row_rendering_offset, active_file->collumn_pointer+collumn_rendering_offset, '_' |A_REVERSE);
-  
 
-    wrefresh(window);
+    wrefresh(ui->text_editor_window);
 
 }
 
-void render_file_list(file_list_t *file_list, WINDOW *window){
+void render_file_content_to_window(WINDOW* text_editor_window,file_t *active_file, const int max_rendered_line, const int max_char_in_a_line){
+    for (int row = row_rendering_offset; row < active_file->buffer.pointer + row_rendering_offset && row < max_rendered_line + row_rendering_offset; row++){
+        buffer_t *current_row = &(active_file->buffer.data[row - (row_rendering_offset) + active_file->row_offset]);
+        mvwprintw(text_editor_window, row, 0, "|%03d|", row + active_file->row_offset + 1 - row_rendering_offset);
+
+        for (int i = collumn_rendering_offset; i < max_char_in_a_line; i++){
+            if (i - collumn_rendering_offset < current_row->pointer){
+                char current_character = current_row->data[i - collumn_rendering_offset];
+                mvwaddch(text_editor_window, row, i, current_character);
+            }else{
+                mvwaddch(text_editor_window, row, i, ' ');
+            }
+        }
+    }
+}
+void render_file_list(file_list_t *file_list, WINDOW *window)
+{
     for (int i = 0; i < file_list->open_file_n; i++){
         if (file_list->active_file == &file_list->open_files[i]){
             if (file_list->open_files[i].dirty){
@@ -224,6 +211,19 @@ void render_file_list(file_list_t *file_list, WINDOW *window){
         }
     }
 }
+
+void render_current_mode(WINDOW* window, aloe_mode_t mode){
+    
+    char* mode_texts[] = {
+        "  | Normal |  ",
+        "  | Editing |  ",
+        "  | Terminal |  ",
+        "  | Workspace |  "
+    };
+    mvwaddstr(window,  FILE_EDITOR_HEIGHT-1, 40-strlen(mode_texts[mode])/2,  mode_texts[mode]);
+    wrefresh(window);
+}
+
 void show_saved_popup_window(int start_x, int start_y)
 {
     char* message = "The file was sucessfully saved";
@@ -373,11 +373,9 @@ void render_blank_screen(WINDOW* window){
 
     werase(window);
     box(window, 1,0);
-    const int height = (int)(LINES*0.92);
-    const int width  = (int)(COLS*0.805);
 
     const char github_message[] = "Aloe";
-    mvwaddstr(window, height-2, width - sizeof(github_message), github_message);
+    mvwaddstr(window, FILE_EDITOR_HEIGHT-2, FILE_EDITOR_WIDTH - sizeof(github_message), github_message);
 
 
     char* icon[] = {
@@ -398,7 +396,7 @@ void render_blank_screen(WINDOW* window){
     };
 
      for (int i = 0; i < 14; i++){
-        mvwaddstr(window, i + 10, width/2 - 91/5, icon[i]);
+        mvwaddstr(window, i + 10, FILE_EDITOR_WIDTH/2 - 91/5, icon[i]);
     }
     wrefresh(window);
 
@@ -427,7 +425,7 @@ void render_blank_screen(WINDOW* window){
     const size_t n_rows = 16;
 
     for (int i = 0; i < n_rows; i++){
-        mvwaddstr(window, i + 30, width/2 - row_size/2, tool_tips[i]);
+        mvwaddstr(window, i + 30, FILE_EDITOR_WIDTH/2 - row_size/2, tool_tips[i]);
     }
     wrefresh(window);
 }
