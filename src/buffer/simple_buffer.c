@@ -17,7 +17,7 @@ buffer_t buffer_init_by_array(char* input, size_t size_of_inputbuffer, const int
 
 buffer_t buffer_init(void){
     const int additional_storage_space = 30;
-    char* data = calloc(sizeof(char), additional_storage_space);
+    char* data = calloc(sizeof(char), additional_storage_space+1);
     data[additional_storage_space] = '\0';
     return (buffer_t){
         .data=data,
@@ -34,7 +34,7 @@ void buffer_resize(buffer_t* buffer, size_t new_buffer_size){
         return;
     }
     buffer->data = realloc(buffer->data, new_buffer_size * sizeof(char));
-    assert_with_log_s(buffer->data != NULL, "Reallocation failed");
+    assertf(buffer->data != NULL, "Reallocation failed")
     // buffer->max_size = new_buffer_size;
 }
 
@@ -74,4 +74,9 @@ void buffer_delete_at(buffer_t* buffer, int position){
     }
     buffer->data[buffer->pointer--] = '\0';
 
+}
+
+void buffer_clear(buffer_t* buffer){
+    memset(buffer->data, 0, buffer->pointer);
+    buffer->pointer = 0;
 }

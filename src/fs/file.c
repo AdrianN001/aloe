@@ -1,10 +1,12 @@
-#include "aloe/fs.h"
-#include "aloe/assert.h"
-#include "aloe/buffer.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include "aloe/fs.h"
+#include "aloe/assert.h"
+#include "aloe/buffer.h"
+#include "aloe/file_monitor.h"
 
 char* get_filename_by_path(char* path){
     int last_slash_character = 0;
@@ -51,6 +53,9 @@ file_t open_file(char* path){
     char* path_copy = malloc(sizeof(char) * len_of_path+1);
     strncpy(path_copy, path, len_of_path);
     path_copy[len_of_path] = '\0';
+
+    file_monitor_instance_t file_monitor = create_file_monitor_instance(path_copy, FILE_INOTIFY_FLAGS);
+
     
     return (file_t){
         .buffer = lines_buffer,
@@ -60,7 +65,9 @@ file_t open_file(char* path){
         .fp = fp,
         .row_pointer = 0,
         .row_offset = 0,
-        .collumn_pointer = 0
+        .collumn_pointer = 0,
+        .collumn_offset = 0,
+        .file_monitor = file_monitor
     };
 
 }
@@ -81,7 +88,12 @@ file_t create_new_file(char* file_name){
     strncpy(path_copy, file_name, len_of_path);
     path_copy[len_of_path] = '\0';
 
-        return (file_t){
+
+    //TODO The file monitor assertion fails
+    file_monitor_instance_t file_monitor = create_file_monitor_instance(path_copy, FILE_INOTIFY_FLAGS);
+
+
+    return (file_t){
         .buffer = lines_buffer,
         .dirty = false,
         .file_name = get_filename_by_path(path_copy),
@@ -89,11 +101,13 @@ file_t create_new_file(char* file_name){
         .fp = fp,
         .row_pointer = 0,
         .row_offset = 0,
-        .collumn_pointer = 0
+        .collumn_pointer = 0,
+        .collumn_offset = 0,
+        .file_monitor = file_monitor
     };
-
-
 }
+
+
 
 int write_to_file(file_t* file, char character){
 
@@ -174,6 +188,36 @@ int close_file(file_t* file){
     free(file->absolute_file_name);
     complex_buffer_free(&(file->buffer));
     fclose(file->fp);
+    free_file_monitor_instance(&file->file_monitor);
     return 0;
 }
 
+
+
+int refresh_file_buffer(file_t* file){
+    complex_buffer_free(&file->buffer);
+
+
+    char* line = NULL;
+    int chars_read;
+    size_t len = 0;
+    bool any_line_read = false;
+
+    complex_buffer_t lines_buffer = complex_buffer_init(100);
+    
+    while((chars_read = getdelim(&line, &len, '\n', file->fp)) != -1){
+        if (chars_read == 0){
+            complex_buffer_append_blank(&lines_buffer);
+        }else{
+            complex_buffer_append(&lines_buffer, line, chars_read);
+        }
+        any_line_read = true;
+    }
+    if (!any_line_read){
+        complex_buffer_append_blank(&lines_buffer);
+    }
+
+    file->buffer = lines_buffer;
+    return 0;
+
+}

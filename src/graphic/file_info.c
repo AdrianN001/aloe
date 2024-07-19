@@ -26,6 +26,8 @@ WINDOW* start_file_info_window(WINDOW* base, file_t* file){
         mvwaddstr(file_info_window, 3, width /2 - strlen(info.file_type) /2, info.file_type);
 
         mvwprintw(file_info_window, 1, 1, "Owner: %s|", info.file_owner);
+        free_file_metadata(&info);
+
     }else{
         const char* no_file_opened = "Open a file.";
         mvwaddstr(file_info_window, height/2, width/2-strlen(no_file_opened)/2,no_file_opened );
@@ -47,11 +49,13 @@ void update_file_info_window(WINDOW* window, file_t* new_file){
 
     if (new_file != NULL){
         file_info_t info = get_file_metadata(new_file);
+
         mvwaddstr(window, 1, width /2 - strlen(info.file_name) /2, info.file_name);
         mvwaddstr(window, 2, width /2 - strlen(info.file_size) /2, info.file_size);
         mvwaddstr(window, 3, width /2 - strlen(info.file_type) /2, info.file_type);
 
         mvwprintw(window, 1, 1, "Owner: %s|", info.file_owner);
+        free_file_metadata(&info);
     }else{
         const char* no_file_opened = "Open a file.";
         mvwaddstr(window, height/2, width/2-strlen(no_file_opened)/2,no_file_opened );

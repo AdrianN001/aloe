@@ -13,7 +13,6 @@ void start_command_line(command_list_t* command_list, WINDOW* base_window, file_
     bool has_been_freed = false;
     int cursor = 0;
     
-    char* start_of_input_field = ">";
     char* message = "Command palette";
 
 
@@ -64,7 +63,7 @@ void start_command_line(command_list_t* command_list, WINDOW* base_window, file_
                     render_command_results_to_popup(popup, command_list, cursor);
                 }else{
                     cursor = (cursor == 0) ? filtered_list.n_of_commands -1: cursor-1;
-                    render_command_results_to_popup(popup, filter_commands, cursor);
+                    render_command_results_to_popup(popup, &filtered_list, cursor);
                 }
 
                 wrefresh(popup);

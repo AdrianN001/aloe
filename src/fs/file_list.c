@@ -1,8 +1,13 @@
 
-#include "aloe/fs.h"
 #include <string.h>
+#include <errno.h>
+#include <unistd.h>
 #include <stdlib.h>
+
+#include "aloe/file_monitor.h"
 #include "aloe/assert.h"
+#include "aloe/fs.h"
+
 
 #ifndef MAX
 #define MAX(x, y) ((x < y) ? y : x)
@@ -55,6 +60,7 @@ file_t* file_list_append_premade(file_list_t* file_list, file_t file){
 }
 
 void file_list_increment_active_pointer(file_list_t* file_list){
+
     file_list->active_file_pointer = (file_list->active_file_pointer + 1) % file_list->open_file_n;
     file_list->active_file = &file_list->open_files[file_list->active_file_pointer];
 }
@@ -104,4 +110,99 @@ void file_list_close_all(file_list_t* file_list){
     for (int i = 0; i < file_list->open_file_n;i++){
         close_file(&file_list->open_files[i]);
     }
+}
+
+
+void file_list_handle_file_events(file_list_t* file_list, dir_t* workspace){
+    char buffer[EVENT_BUFFER_LENGTH] = {0};
+    int read_length = read(inotify_file_descriptor, buffer, EVENT_BUFFER_LENGTH);
+
+    if (read_length < 0 && errno == EAGAIN){
+        return ;
+    }else if (read_length < 0){
+        assert(0);
+    }
+
+    int index = 0;
+
+    while (index < read_length){
+        struct inotify_event* event = (struct inotify_event* )&buffer[index];
+        
+        file_t* file_event_source = get_file_from_watch_descriptor(file_list, event->wd);
+
+        /* The event source was a file */
+        if(file_event_source != NULL){
+            if(event->mask & IN_MODIFY){
+                refresh_file_buffer(file_event_source);
+            }else if (event->mask & IN_MOVE_SELF){
+                file_list_remove_file(file_list, file_event_source);
+            }
+        }else{ 
+            /* The event source was a directory */
+
+            if(event->mask & IN_CREATE || event->mask & IN_DELETE ){
+                dir_t refreshed_dir = create_directory_object(workspace->dir_path, 3);
+                free_directory_object(workspace);
+                *workspace = refreshed_dir;
+            }
+
+        }
+
+
+        index += sizeof(struct inotify_event) + event->len;
+
+        // switch(instance->flags){
+            // case FILE_INOTIFY_FLAGS:{
+
+        //         if (event->mask & IN_MODIwFY){
+        //             return IN_MODIFY;
+        //         } else if (event->mask & IN_DELETE_SELF){
+        //             return IN_DELETE_SELF;
+        //         }
+        //         break;
+        //     }
+        //     case DIR_INOTIFY_FLAGS:{
+                
+        //         if (event->mask & IN_CREATE){
+        //             return IN_CREATE;
+        //         }else if(event->mask & IN_DELETE){
+        //             return IN_DELETE;
+        //         }
+        //         break;
+        //     }
+        // }
+    }
+    return ;
+}
+
+
+void file_list_remove_file(file_list_t* file_list, file_t* file){
+    if (file == file_list->active_file){
+        return file_list_force_close_file(file_list);
+    }
+    int index = ((long long)file - (long long)file_list->open_files)/sizeof(file_t);
+    close_file(file);
+
+
+    if(index == file_list->open_file_n-1){
+        file_list->open_file_n = MAX(file_list->open_file_n -1, 0) ;
+    }
+    else{
+        /* Pointer arithmetic <3 */
+        for (file_t* i = file; i != &file_list->open_files[file_list->open_file_n-1] ;  ){
+            *i = *(++i);
+        }
+        file_list_increment_active_pointer(file_list);
+        file_list->open_file_n--;
+    }
+}
+
+
+file_t* get_file_from_watch_descriptor(file_list_t* file_list, int watch_d){
+    for (int i = 0; i < file_list->open_file_n;i++){
+        if (file_list->open_files[i].file_monitor.watch_descriptor == watch_d){
+            return &file_list->open_files[i];
+        }
+    }
+    return NULL;
 }

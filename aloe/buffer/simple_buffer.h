@@ -23,6 +23,8 @@ void buffer_resize(buffer_t* buffer, size_t new_buffer_size);
 void buffer_write_at(buffer_t* buffer, char charater, int position);
 void buffer_delete_at(buffer_t* buffer, int position);
 
+void buffer_clear(buffer_t* buffer);
+
 
 
 #endif

@@ -28,9 +28,11 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
         wrefresh(workspace_window);
         return workspace_window;
     }
+
     char* abs_path = realpath( directory->dir_path,NULL);
     mvwprintw(workspace_window, 0, width/2 - strlen(abs_path)/2, "|%s|", abs_path);
     free(abs_path);
+
 
     /* Subdirs */
 
@@ -46,8 +48,10 @@ WINDOW* start_workspace_window(WINDOW* base, dir_t* directory){
         }
     }
 
+
     mvwprintw(workspace_window, 5+ directory->n_subdir +2, 2, "<-- Go to parent directory"); 
     mvwprintw(workspace_window, 5+ directory->n_subdir +4, 2, "--> Open the directory/file"); 
+    
 
 
     /* Files */

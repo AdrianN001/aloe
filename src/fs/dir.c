@@ -1,6 +1,11 @@
 #include "aloe/fs.h"
+#include "aloe/file_monitor.h"
 #include <string.h>
 #include <stdlib.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 
 int lookup_path(const char *path){
@@ -65,6 +70,9 @@ dir_t create_directory_object(const char* path,  int max_depth){
     }
     closedir(directory);
 
+    file_monitor_instance_t directory_monitor = create_file_monitor_instance(path, DIR_INOTIFY_FLAGS);
+
+
     return (dir_t){
         .dir_path = path_copy,
 
@@ -74,9 +82,9 @@ dir_t create_directory_object(const char* path,  int max_depth){
         .subdirectories = subdirs,
         .n_subdir = subdirs_p,
 
-        .pointer = 0
+        .pointer = 0,
+        .directory_monitor = directory_monitor
     };
-
 }
 
 void  free_directory_object(dir_t* dir_obj){
@@ -90,4 +98,19 @@ void  free_directory_object(dir_t* dir_obj){
     }
     free(dir_obj->subdirectories);
     free(dir_obj->dir_path);
+    
+    free_file_monitor_instance(&dir_obj->directory_monitor);
+}
+
+
+
+
+int make_new_directory(char* path){
+    struct stat st = {0};
+
+    if(stat(path, &st) == -1){
+        mkdir(path, 0700);
+        return 0;
+    }
+    return -1;
 }

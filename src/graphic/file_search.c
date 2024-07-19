@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-void start_file_search_window_popup(dir_t* directory, file_t* file_list){
+void start_file_search_window_popup(dir_t* directory, file_list_t* file_list){
     const int start_x = LINES /2;
     const int start_y = COLS /2;
     
