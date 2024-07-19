@@ -176,9 +176,8 @@ void update_file_editor_window(WINDOW* window, file_list_t* file_list, int chara
             char character = current_row->data[collumn]; 
             if (row == active_file->row_pointer-active_file->row_offset && collumn == active_file->collumn_pointer){
                 cursor_added = true;
-
                 mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character | A_REVERSE);
-                
+
                 continue;
             }
             mvwaddch(window, row_rendering_offset+row, collumn_rendering_offset+collumn, character);
